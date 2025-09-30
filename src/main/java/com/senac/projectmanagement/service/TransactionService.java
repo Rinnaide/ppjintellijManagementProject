@@ -31,7 +31,7 @@ public class TransactionService {
             Transaction transaction = new Transaction(user.get(), category.get(), transactionType, amount, description, transactionDate);
             return transactionRepository.save(transaction);
         }
-        throw new RuntimeException("User or Category not found");
+        throw new RuntimeException("Usuário ou Categoria não encontrada");
     }
 
     public List<Transaction> getTransactionsByUser(Long userId) {
@@ -55,7 +55,7 @@ public class TransactionService {
             transaction.setTransactionDate(transactionDate);
             return transactionRepository.save(transaction);
         }
-        throw new RuntimeException("Transaction not found");
+        throw new RuntimeException("Transação não encontrada");
     }
 
     public void deleteTransaction(Long id) {

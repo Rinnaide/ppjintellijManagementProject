@@ -27,7 +27,7 @@ public class CategoryService {
             category.setDescription(description);
             return categoryRepository.save(category);
         }
-        throw new RuntimeException("User not found");
+        throw new RuntimeException("Usuário não encontrado");
     }
 
     public List<Category> getCategoriesByUser(Long userId) {
@@ -52,7 +52,7 @@ public class CategoryService {
             category.setColorHex(colorHex);
             return categoryRepository.save(category);
         }
-        throw new RuntimeException("Category not found");
+        throw new RuntimeException("Categoria não encontrada");
     }
 
     public void deleteCategory(Long id) {

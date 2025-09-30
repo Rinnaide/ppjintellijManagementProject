@@ -23,7 +23,7 @@ public class UserService {
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByEmail(userRequestDTO.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new RuntimeException("Email já existe");
         }
         User user = new User();
         user.setEmail(userRequestDTO.getEmail());
@@ -68,7 +68,7 @@ public class UserService {
             User updatedUser = userRepository.save(user);
             return mapToResponseDTO(updatedUser);
         }
-        throw new RuntimeException("User not found");
+        throw new RuntimeException("Usuário não encontrado");
     }
 
     public void deleteUser(Long id) {
