@@ -1,48 +1,56 @@
 package com.senac.projectmanagement.entity;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+
 @Entity
-@Table(name = "Users")
+@Table(name = "user")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "users_id")
+    @Column(name = "user_id")
     private Long usersId;
 
-    @Column(name = "email", nullable = false, unique = true, length = 255)
+    @Column(name = "user_email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name = "user_password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    @Column(name = "first_name", nullable = false, length = 100)
+    @Column(name = "user_first_name", nullable = false, length = 100)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 100)
+    @Column(name = "user_last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "phone", length = 20)
+    @Column(name = "user_phone", length = 20)
     private String phone;
 
-    @Column(name = "default_currency", length = 3)
+    @Column(name = "user_default_currency", length = 3)
     private String defaultCurrency = "BRL";
 
-    @Column(name = "timezone", length = 50)
+    @Column(name = "user_timezone", length = 50)
     private String timezone = "America/Sao_Paulo";
 
-    @Column(name = "is_active")
+    @Column(name = "user_is_active")
     private Boolean isActive = true;
 
-    @Column(name = "email_verified")
+    @Column(name = "user_email_verified")
     private Boolean emailVerified = false;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "user_created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "user_updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     // Constructors, getters, setters

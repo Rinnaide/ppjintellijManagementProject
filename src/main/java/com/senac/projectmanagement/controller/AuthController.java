@@ -1,41 +1,35 @@
 package com.senac.projectmanagement.controller;
 
-import com.senac.projectmanagement.security.JwtService;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.senac.projectmanagement.dto.UserLoginRequestDTO;
+import com.senac.projectmanagement.dto.UserLoginResponseDTO;
+import com.senac.projectmanagement.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtService jwtService;
+    private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> loginRequest) {
+    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-        );
+        UserLoginRequestDTO requestDTO = new UserLoginRequestDTO();
+        requestDTO.setUsuarioEmail(email);
+        requestDTO.setUsuario_senha(password);
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtService.generateToken(userDetails.getUsername());
-
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
+        UserLoginResponseDTO response = userService.login(requestDTO);
         return ResponseEntity.ok(response);
     }
 }

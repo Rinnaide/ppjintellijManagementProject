@@ -1,13 +1,24 @@
 package com.senac.projectmanagement.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.senac.projectmanagement.dto.UserLoginRequestDTO;
+import com.senac.projectmanagement.dto.UserLoginResponseDTO;
 import com.senac.projectmanagement.dto.UserRequestDTO;
 import com.senac.projectmanagement.dto.UserResponseDTO;
 import com.senac.projectmanagement.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -15,6 +26,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @PostMapping("/login")
+    public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO loginUserDto) {
+        UserLoginResponseDTO token = userService.login(loginUserDto);
+        return new ResponseEntity<>(token, HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
