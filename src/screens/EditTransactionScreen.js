@@ -23,7 +23,7 @@ import { isValidAmount } from '../utils/helpers';
 const EditTransactionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { transaction } = route.params;
+  const { transaction, onUpdate } = route.params;
 
   const [formData, setFormData] = useState({
     description: '',
@@ -117,7 +117,10 @@ const EditTransactionScreen = () => {
         userId: userData.id,
       };
 
-      await transactionService.updateTransaction(transaction.id, updateData);
+      const updatedTransaction = await transactionService.updateTransaction(transaction.id, updateData);
+      if (onUpdate) {
+        onUpdate(updatedTransaction);
+      }
       Alert.alert(
         'Sucesso',
         'Transação atualizada com sucesso!',

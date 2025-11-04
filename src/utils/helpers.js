@@ -54,3 +54,9 @@ export const daysDifference = (date1, date2) => {
   const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
   return Math.round(Math.abs((new Date(date1) - new Date(date2)) / oneDay));
 };
+
+// Função para validar valor (deve ser um número positivo)
+export const isValidAmount = (amount) => {
+  const num = parseFloat(amount);
+  return !isNaN(num) && num > 0;
+};

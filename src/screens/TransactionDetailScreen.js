@@ -20,7 +20,8 @@ import transactionService from '../services/transactionService';
 const TransactionDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { transaction } = route.params;
+  const { transaction: initialTransaction } = route.params;
+  const [transaction, setTransaction] = React.useState(initialTransaction);
 
   const handleDelete = async () => {
     Alert.alert(
@@ -46,7 +47,7 @@ const TransactionDetailScreen = () => {
   };
 
   const handleEdit = () => {
-    navigation.navigate('EditTransaction', { transaction });
+    navigation.navigate('EditTransaction', { transaction, onUpdate: setTransaction });
   };
 
   if (!transaction) {
