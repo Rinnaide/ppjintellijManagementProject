@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "updates": {
-      "enabled": false
+      "enabled": true
     },
     "splash": {
       "image": "./assets/splash-icon.png",
