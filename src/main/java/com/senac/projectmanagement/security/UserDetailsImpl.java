@@ -26,21 +26,12 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user) {
-<<<<<<< HEAD
         String nomeUsuario = user.getUserFirstName() + " " + user.getUserLastName();
         return new UserDetailsImpl(
                 user.getUserId(),
                 nomeUsuario,
                 user.getUserEmail(),
                 user.getUserPasswordHash(),
-=======
-        String nomeUsuario = user.getFirstName() + " " + user.getLastName();
-        return new UserDetailsImpl(
-                user.getUsersId(),
-                nomeUsuario,
-                user.getEmail(),
-                user.getPasswordHash(),
->>>>>>> a93ef3251f7e8d9785c06f73e8935488a15f2178
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
     }
