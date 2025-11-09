@@ -6,6 +6,7 @@ import {
   FlatList,
   RefreshControl,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -148,14 +149,9 @@ const HomeScreen = ({ route }) => {
 
       {/* Botão flutuante para adicionar transação */}
       <View style={styles.fabContainer}>
-        <CustomButton
-          title=""
-          onPress={() => navigation.navigate('AddTransaction')}
-          style={styles.fab}
-          textStyle={styles.fabText}
-        >
+        <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('AddTransaction')}>
           <Ionicons name="add" size={24} color={COLORS.white} />
-        </CustomButton>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -260,9 +256,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  fabText: {
-    display: 'none', // Esconder texto, mostrar apenas ícone
-  },
+
 });
 
 export default HomeScreen;
