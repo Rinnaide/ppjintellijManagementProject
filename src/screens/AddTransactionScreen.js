@@ -23,7 +23,7 @@ const AddTransactionScreen = () => {
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
-    type: 'expense', // 'income' or 'expense'
+    type: '', // 'income' or 'expense' - start empty
     categoryId: '',
     transactionDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
   });
@@ -32,8 +32,13 @@ const AddTransactionScreen = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    // Load categories only if type is selected
+    if (formData.type) {
+      loadCategories(formData.type);
+    } else {
+      setCategories([]);
+    }
+  }, [formData.type]);
 
   const loadCategories = async (type = null) => {
     try {
@@ -51,6 +56,10 @@ const AddTransactionScreen = () => {
 
   const validateForm = () => {
     const newErrors = {};
+
+    if (!formData.type) {
+      newErrors.type = 'Tipo de transação é obrigatório';
+    }
 
     if (!formData.description.trim()) {
       newErrors.description = 'Descrição é obrigatória';
@@ -90,6 +99,7 @@ const AddTransactionScreen = () => {
     setFormData(prev => ({
       ...prev,
       type,
+      categoryId: '', // Reset category when type changes
     }));
     // Filter categories based on type
     loadCategories(type);
@@ -177,6 +187,9 @@ const AddTransactionScreen = () => {
           </Text>
         </TouchableOpacity>
       </View>
+      {errors.type && (
+        <Text style={styles.errorText}>{errors.type}</Text>
+      )}
     </View>
   );
 
