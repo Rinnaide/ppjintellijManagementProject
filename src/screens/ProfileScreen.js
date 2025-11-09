@@ -129,9 +129,6 @@ const ProfileScreen = () => {
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.avatarContainer}>
-              <Ionicons name="person-circle" size={80} color={COLORS.primary} />
-            </View>
             <Text style={styles.userName}>
               {user.firstName} {user.lastName}
             </Text>
@@ -251,9 +248,7 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.lightGray,
     marginBottom: SPACING.xl,
   },
-  avatarContainer: {
-    marginBottom: SPACING.md,
-  },
+
   userName: {
     fontSize: FONT_SIZES.xlarge,
     fontWeight: 'bold',
