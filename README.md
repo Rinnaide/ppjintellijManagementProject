@@ -1,6 +1,6 @@
 # Personal Finance Manager
 
-Um aplicativo móvel de gerenciamento financeiro pessoal desenvolvido com React Native e Expo. Permite aos usuários controlar suas finanças pessoais, gerenciar transações de receitas e despesas, organizar categorias e acompanhar estatísticas financeiras com suporte completo para formatação brasileira (BRL).
+Um aplicativo móvel de gerenciamento financeiro pessoal desenvolvido com React Native e Expo. Permite aos usuários controlar suas finanças pessoais, gerenciar transações de receitas e despesas, organizar categorias e acompanhar estatísticas financeiras.
 
 ## Funcionalidades
 
