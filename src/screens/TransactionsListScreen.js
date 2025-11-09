@@ -18,9 +18,11 @@ import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { formatCurrency, formatDate } from '../utils/helpers';
+import { useFilter } from '../contexts/FilterContext';
 
 const TransactionsListScreen = () => {
   const navigation = useNavigation();
+  const { filteredTransactions, searchQuery, isFiltered, clearFilters } = useFilter();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,6 +68,14 @@ const TransactionsListScreen = () => {
 
   const handleTransactionPress = (transaction) => {
     navigation.navigate('TransactionDetail', { transaction });
+  };
+
+  const handleFilterPress = () => {
+    navigation.navigate('ListFilter');
+  };
+
+  const handleClearFilters = () => {
+    clearFilters();
   };
 
   const handleAddTransaction = () => {
@@ -136,6 +146,20 @@ const TransactionsListScreen = () => {
           </Text>
         </View>
       </View>
+
+      {isFiltered && (
+        <View style={styles.filterContainer}>
+          <View style={styles.filterInfo}>
+            <Ionicons name="funnel" size={16} color={COLORS.primary} />
+            <Text style={styles.filterText}>
+              Filtrado por: "{searchQuery}" ({filteredTransactions.length} resultado{filteredTransactions.length !== 1 ? 's' : ''})
+            </Text>
+          </View>
+          <TouchableOpacity onPress={handleClearFilters} style={styles.clearFilterButton}>
+            <Ionicons name="close-circle" size={20} color={COLORS.gray} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 
@@ -159,7 +183,7 @@ const TransactionsListScreen = () => {
       {/* Lista de transações */}
       <View style={styles.listContainer}>
         <FlatList
-          data={transactions}
+          data={isFiltered ? filteredTransactions : transactions}
           renderItem={renderTransaction}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={renderEmpty}
@@ -167,7 +191,7 @@ const TransactionsListScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={transactions.length === 0 ? styles.emptyList : null}
+          contentContainerStyle={(isFiltered ? filteredTransactions.length === 0 : transactions.length === 0) ? styles.emptyList : null}
         />
       </View>
 
@@ -175,6 +199,13 @@ const TransactionsListScreen = () => {
       <View style={styles.fabContainer}>
         <TouchableOpacity style={styles.fab} onPress={handleAddTransaction}>
           <Ionicons name="add" size={24} color={COLORS.white} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Botão flutuante para filtrar transações */}
+      <View style={[styles.fabContainer, { bottom: SPACING.lg + 70, right: SPACING.lg }]}>
+        <TouchableOpacity style={[styles.fab, { backgroundColor: COLORS.secondary }]} onPress={handleFilterPress}>
+          <Ionicons name="funnel" size={24} color={COLORS.white} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -258,6 +289,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: SPACING.md,
+    padding: SPACING.md,
+    backgroundColor: COLORS.light,
+    borderRadius: 8,
+  },
+  filterInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  filterText: {
+    fontSize: FONT_SIZES.small,
+    color: COLORS.dark,
+    marginLeft: SPACING.sm,
+    flex: 1,
+  },
+  clearFilterButton: {
+    padding: SPACING.xs,
   },
 });
 

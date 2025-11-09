@@ -16,6 +16,7 @@ import CustomButton from '../components/CustomButton';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
+import { formatCurrency } from '../utils/helpers';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
@@ -146,12 +147,12 @@ const ProfileScreen = () => {
               </View>
               <View style={styles.statItem}>
                 <Ionicons name="trending-up-outline" size={24} color={COLORS.success} />
-                <Text style={styles.statValue}>R$ {stats.totalIncome.toFixed(2)}</Text>
+                <Text style={styles.statValue}>{formatCurrency(stats.totalIncome)}</Text>
                 <Text style={styles.statLabel}>Receitas</Text>
               </View>
               <View style={styles.statItem}>
                 <Ionicons name="trending-down-outline" size={24} color={COLORS.danger} />
-                <Text style={styles.statValue}>R$ {stats.totalExpense.toFixed(2)}</Text>
+                <Text style={styles.statValue}>{formatCurrency(stats.totalExpense)}</Text>
                 <Text style={styles.statLabel}>Despesas</Text>
               </View>
               <View style={styles.statItem}>

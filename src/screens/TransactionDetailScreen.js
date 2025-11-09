@@ -13,7 +13,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
-import { formatCurrency, formatDate } from '../utils/helpers';
+import { formatCurrency, formatDate, formatDateTimeFull } from '../utils/helpers';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 
@@ -71,18 +71,6 @@ const TransactionDetailScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={COLORS.dark} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detalhes da Transação</Text>
-        <View style={styles.headerRight} />
-      </View>
-
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
           {/* Transaction Icon and Amount */}
@@ -133,7 +121,7 @@ const TransactionDetailScreen = () => {
               <View style={styles.detailContent}>
                 <Text style={styles.detailLabel}>Data de Criação</Text>
                 <Text style={styles.detailValue}>
-                  {transaction.createdAt ? formatDate(transaction.createdAt.split('T')[0]) : 'N/A'}
+                  {transaction.createdAt ? formatDateTimeFull(transaction.createdAt) : 'N/A'}
                 </Text>
               </View>
             </View>

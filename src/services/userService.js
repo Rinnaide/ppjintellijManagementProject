@@ -22,6 +22,13 @@ class UserService {
   async createUser(userData) {
     try {
       const users = await this.getAllUsers();
+
+      // Check if email already exists
+      const existingUser = users.find(user => user.usuarioEmail === userData.usuarioEmail);
+      if (existingUser) {
+        throw new Error('Este email já está cadastrado. Use um email diferente ou tente fazer login.');
+      }
+
       const newUser = {
         id: Date.now().toString(), // Simple ID generation
         ...userData,

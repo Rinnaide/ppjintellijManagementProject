@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../utils/constants';
+import { FilterProvider } from '../contexts/FilterContext';
 
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
@@ -18,6 +19,7 @@ import AddCategoryScreen from '../screens/AddCategoryScreen';
 import EditCategoryScreen from '../screens/EditCategoryScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
+import ListFilterScreen from '../screens/ListFilterScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -92,19 +94,20 @@ const MainTabNavigator = () => {
 // Stack Navigator principal
 const AppNavigator = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Login"
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: COLORS.white,
-          },
-          headerTintColor: COLORS.dark,
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-        }}
-      >
+    <FilterProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Login"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: COLORS.white,
+            },
+            headerTintColor: COLORS.dark,
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        >
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -171,8 +174,16 @@ const AppNavigator = () => {
             title: 'Editar Perfil',
           }}
         />
+        <Stack.Screen
+          name="ListFilter"
+          component={ListFilterScreen}
+          options={{
+            title: 'Filtrar Transações',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
+    </FilterProvider>
   );
 };
 

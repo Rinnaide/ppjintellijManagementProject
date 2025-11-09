@@ -6,17 +6,20 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
+import { formatCurrencyInput, parseBRLAmount, formatDate } from '../utils/helpers';
 
 const AddTransactionScreen = () => {
   const navigation = useNavigation();
@@ -26,10 +29,13 @@ const AddTransactionScreen = () => {
     type: '', // 'income' or 'expense' - start empty
     categoryId: '',
     transactionDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+    transactionTime: new Date().toTimeString().split(' ')[0], // HH:MM:SS format
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   useEffect(() => {
     // Load categories only if type is selected
@@ -65,7 +71,7 @@ const AddTransactionScreen = () => {
       newErrors.description = 'Descrição é obrigatória';
     }
 
-    if (!formData.amount || isNaN(formData.amount) || parseFloat(formData.amount) <= 0) {
+    if (!formData.amount || isNaN(parseBRLAmount(formData.amount)) || parseBRLAmount(formData.amount) <= 0) {
       newErrors.amount = 'Valor deve ser maior que zero';
     }
 
@@ -95,6 +101,22 @@ const AddTransactionScreen = () => {
     }
   };
 
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      handleInputChange('transactionDate', dateString);
+    }
+  };
+
+  const onTimeChange = (event, selectedTime) => {
+    setShowTimePicker(Platform.OS === 'ios');
+    if (selectedTime) {
+      const timeString = selectedTime.toTimeString().split(' ')[0];
+      handleInputChange('transactionTime', timeString);
+    }
+  };
+
   const handleTypeChange = (type) => {
     setFormData(prev => ({
       ...prev,
@@ -121,7 +143,7 @@ const AddTransactionScreen = () => {
       const userData = JSON.parse(user);
       const transactionData = {
         ...formData,
-        amount: parseFloat(formData.amount),
+        amount: parseBRLAmount(formData.amount),
         categoryId: formData.categoryId,
         userId: userData.id,
       };
@@ -256,7 +278,8 @@ const AddTransactionScreen = () => {
             placeholder="0,00"
             value={formData.amount}
             onChangeText={(value) => handleInputChange('amount', value)}
-            keyboardType="numeric"
+            onBlur={() => handleInputChange('amount', formatCurrencyInput(formData.amount))}
+            keyboardType="default"
             error={errors.amount}
           />
 
@@ -264,13 +287,46 @@ const AddTransactionScreen = () => {
           {renderCategorySelector()}
 
           {/* Data */}
-          <CustomInput
-            label="Data"
-            placeholder="YYYY-MM-DD"
-            value={formData.transactionDate}
-            onChangeText={(value) => handleInputChange('transactionDate', value)}
-            error={errors.transactionDate}
-          />
+          <View style={styles.dateTimeContainer}>
+            <TouchableOpacity
+              style={styles.dateTimeButton}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Ionicons name="calendar-outline" size={20} color={COLORS.gray} />
+              <Text style={styles.dateTimeText}>
+                {formatDate(formData.transactionDate)}
+              </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={new Date(formData.transactionDate)}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onDateChange}
+              />
+            )}
+          </View>
+
+          {/* Hora */}
+          <View style={styles.dateTimeContainer}>
+            <TouchableOpacity
+              style={styles.dateTimeButton}
+              onPress={() => setShowTimePicker(true)}
+            >
+              <Ionicons name="time-outline" size={20} color={COLORS.gray} />
+              <Text style={styles.dateTimeText}>
+                {formData.transactionTime}
+              </Text>
+            </TouchableOpacity>
+            {showTimePicker && (
+              <DateTimePicker
+                value={new Date(`1970-01-01T${formData.transactionTime}`)}
+                mode="time"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onTimeChange}
+              />
+            )}
+          </View>
 
           {/* Botões */}
           <View style={styles.buttonContainer}>
@@ -399,6 +455,23 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     flex: 1,
+  },
+  dateTimeContainer: {
+    marginBottom: SPACING.lg,
+  },
+  dateTimeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    borderRadius: 8,
+    backgroundColor: COLORS.white,
+  },
+  dateTimeText: {
+    fontSize: FONT_SIZES.medium,
+    color: COLORS.dark,
+    marginLeft: SPACING.sm,
   },
 });
 

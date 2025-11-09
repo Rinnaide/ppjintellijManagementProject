@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomInput from '../components/CustomInput';
@@ -18,7 +20,7 @@ import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { COLORS, SPACING } from '../utils/constants';
-import { isValidAmount } from '../utils/helpers';
+import { isValidAmount, formatCurrencyInput, parseBRLAmount, formatNumberToBRL, formatDate } from '../utils/helpers';
 
 const EditTransactionScreen = () => {
   const navigation = useNavigation();
@@ -31,14 +33,28 @@ const EditTransactionScreen = () => {
     type: 'expense',
     categoryId: '',
     transactionDate: '',
+    transactionTime: '',
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    // When transaction type changes, check if current category is still valid
+    if (formData.categoryId) {
+      const filteredCategories = categories.filter(cat => cat.type === formData.type);
+      const isCategoryValid = filteredCategories.some(cat => cat.id === formData.categoryId);
+      if (!isCategoryValid) {
+        updateFormData('categoryId', '');
+      }
+    }
+  }, [formData.type, categories]);
 
   const loadData = async () => {
     try {
@@ -56,10 +72,11 @@ const EditTransactionScreen = () => {
       if (transaction) {
         setFormData({
           description: transaction.description || '',
-          amount: transaction.amount ? transaction.amount.toString() : '',
+          amount: transaction.amount ? formatNumberToBRL(transaction.amount) : '',
           type: transaction.type || 'expense',
           categoryId: transaction.categoryId || '',
           transactionDate: transaction.transactionDate || new Date().toISOString().split('T')[0],
+          transactionTime: transaction.transactionTime || new Date().toTimeString().split(' ')[0],
         });
       }
     } catch (error) {
@@ -74,6 +91,22 @@ const EditTransactionScreen = () => {
     }
   };
 
+  const onDateChange = (event, selectedDate) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      updateFormData('transactionDate', dateString);
+    }
+  };
+
+  const onTimeChange = (event, selectedTime) => {
+    setShowTimePicker(Platform.OS === 'ios');
+    if (selectedTime) {
+      const timeString = selectedTime.toTimeString().split(' ')[0];
+      updateFormData('transactionTime', timeString);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -83,8 +116,8 @@ const EditTransactionScreen = () => {
 
     if (!formData.amount) {
       newErrors.amount = 'Valor é obrigatório';
-    } else if (!isValidAmount(formData.amount)) {
-      newErrors.amount = 'Valor inválido';
+    } else if (isNaN(parseBRLAmount(formData.amount)) || parseBRLAmount(formData.amount) <= 0) {
+      newErrors.amount = 'Valor deve ser maior que zero';
     }
 
     if (!formData.categoryId) {
@@ -113,7 +146,7 @@ const EditTransactionScreen = () => {
       const userData = JSON.parse(user);
       const updateData = {
         ...formData,
-        amount: parseFloat(formData.amount),
+        amount: parseBRLAmount(formData.amount),
         userId: userData.id,
       };
 
@@ -175,10 +208,7 @@ const EditTransactionScreen = () => {
                     styles.typeButton,
                     formData.type === 'income' && styles.typeButtonSelected,
                   ]}
-                  onPress={() => {
-                    updateFormData('type', 'income');
-                    updateFormData('categoryId', ''); // Reset category when type changes
-                  }}
+                  onPress={() => updateFormData('type', 'income')}
                 >
                   <Text style={[
                     styles.typeButtonText,
@@ -192,10 +222,7 @@ const EditTransactionScreen = () => {
                     styles.typeButton,
                     formData.type === 'expense' && styles.typeButtonSelected,
                   ]}
-                  onPress={() => {
-                    updateFormData('type', 'expense');
-                    updateFormData('categoryId', ''); // Reset category when type changes
-                  }}
+                  onPress={() => updateFormData('type', 'expense')}
                 >
                   <Text style={[
                     styles.typeButtonText,
@@ -221,18 +248,53 @@ const EditTransactionScreen = () => {
                 label="Valor"
                 value={formData.amount}
                 onChangeText={(text) => updateFormData('amount', text)}
+                onBlur={() => updateFormData('amount', formatCurrencyInput(formData.amount))}
                 placeholder="0,00"
-                keyboardType="numeric"
+                keyboardType="default"
                 error={errors.amount}
               />
 
-              <CustomInput
-                label="Data"
-                value={formData.transactionDate}
-                onChangeText={(text) => updateFormData('transactionDate', text)}
-                placeholder="YYYY-MM-DD"
-                error={errors.transactionDate}
-              />
+              {/* Data */}
+              <View style={styles.dateTimeContainer}>
+                <TouchableOpacity
+                  style={styles.dateTimeButton}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Ionicons name="calendar-outline" size={20} color={COLORS.gray} />
+                  <Text style={styles.dateTimeText}>
+                    {formatDate(formData.transactionDate)}
+                  </Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={new Date(formData.transactionDate)}
+                    mode="date"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={onDateChange}
+                  />
+                )}
+              </View>
+
+              {/* Hora */}
+              <View style={styles.dateTimeContainer}>
+                <TouchableOpacity
+                  style={styles.dateTimeButton}
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Ionicons name="time-outline" size={20} color={COLORS.gray} />
+                  <Text style={styles.dateTimeText}>
+                    {formData.transactionTime}
+                  </Text>
+                </TouchableOpacity>
+                {showTimePicker && (
+                  <DateTimePicker
+                    value={new Date(`1970-01-01T${formData.transactionTime}`)}
+                    mode="time"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={onTimeChange}
+                  />
+                )}
+              </View>
 
               {/* Category Selection */}
               <View style={styles.categorySection}>
@@ -373,6 +435,24 @@ const styles = StyleSheet.create({
   },
   updateButton: {
     marginTop: SPACING.md,
+  },
+  dateTimeContainer: {
+    marginBottom: SPACING.md,
+  },
+  dateTimeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.lightGray,
+    backgroundColor: COLORS.white,
+  },
+  dateTimeText: {
+    fontSize: 16,
+    color: COLORS.dark,
+    marginLeft: SPACING.sm,
   },
 });
 

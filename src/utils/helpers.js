@@ -11,7 +11,16 @@ export const formatCurrency = (value, currency = 'BRL') => {
 
   const symbol = currencies[currency] || 'R$';
 
-  return `${symbol} ${value.toFixed(2).replace('.', ',')}`;
+  if (currency === 'BRL') {
+    // Formatação brasileira: separador de milhares "." e decimal ","
+    return `${symbol} ${value.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }
+
+  // Para outras moedas, usar formatação padrão
+  return `${symbol} ${value.toFixed(2)}`;
 };
 
 // Função para formatar data
@@ -22,6 +31,12 @@ export const formatDate = (date, formatString = 'dd/MM/yyyy') => {
 
 // Função para formatar data e hora
 export const formatDateTime = (date, formatString = 'dd/MM/yyyy HH:mm') => {
+  if (!date) return '';
+  return format(new Date(date), formatString, { locale: ptBR });
+};
+
+// Função para formatar data e hora completa
+export const formatDateTimeFull = (date, formatString = 'dd/MM/yyyy HH:mm:ss') => {
   if (!date) return '';
   return format(new Date(date), formatString, { locale: ptBR });
 };
@@ -55,8 +70,92 @@ export const daysDifference = (date1, date2) => {
   return Math.round(Math.abs((new Date(date1) - new Date(date2)) / oneDay));
 };
 
-// Função para validar valor (deve ser um número positivo)
+// Função para formatar entrada de moeda em tempo real (formato brasileiro)
+export const formatCurrencyInput = (value) => {
+  if (!value) return '';
+
+  // Remove tudo exceto números, pontos e vírgula
+  let cleanValue = value.replace(/[^0-9.,]/g, '');
+
+  // Permite apenas uma vírgula
+  const commaIndex = cleanValue.indexOf(',');
+  if (commaIndex !== -1) {
+    cleanValue = cleanValue.substring(0, commaIndex + 1) + cleanValue.substring(commaIndex + 1).replace(/[,]/g, '');
+  }
+
+  // Divide em parte inteira e decimal
+  const parts = cleanValue.split(',');
+  let integerPart = parts[0];
+  let decimalPart = parts[1] || '';
+
+  // Remove pontos da parte inteira (separadores de milhares)
+  integerPart = integerPart.replace(/\./g, '');
+
+  // Limita decimal a 2 dígitos
+  if (decimalPart.length > 2) {
+    decimalPart = decimalPart.substring(0, 2);
+  }
+
+  // Adiciona separadores de milhares à parte inteira
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+  // Combina as partes
+  return decimalPart ? `${integerPart},${decimalPart}` : integerPart;
+};
+
+// Função para parsear valor em formato brasileiro (BRL)
+export const parseBRLAmount = (input) => {
+  if (!input || typeof input !== 'string') return NaN;
+  input = input.trim();
+  if (input === '') return NaN;
+
+  if (input.includes(',')) {
+    // Contém vírgula: separador decimal
+    const parts = input.split(',');
+    let whole = parts[0].replace(/\./g, ''); // Remove separadores de milhares
+    let decimal = parts[1] || '00';
+    decimal = decimal.padEnd(2, '0').substring(0, 2);
+    const num = parseFloat(`${whole}.${decimal}`);
+    return isNaN(num) ? NaN : num;
+  } else if (input.includes('.')) {
+    // Apenas pontos: separadores de milhares
+    const parts = input.split('.');
+    if (parts.length === 2) {
+      const thousands = parseInt(parts[0], 10);
+      const rest = parts[1];
+      const restNum = parseInt(rest, 10);
+      if (isNaN(thousands) || isNaN(restNum)) return NaN;
+      // For "1.5", it should be 1.5, not 1005
+      // So, if rest has 1 digit, it's decimal, else thousands
+      if (rest.length === 1) {
+        return thousands + restNum / 10;
+      } else {
+        return thousands * 1000 + restNum;
+      }
+    } else {
+      // Múltiplos pontos, não suportado, tratar como número simples
+      const num = parseFloat(input.replace(/\./g, ''));
+      return isNaN(num) ? NaN : num;
+    }
+  } else {
+    // Apenas números: valor inteiro
+    const num = parseFloat(input);
+    return isNaN(num) ? NaN : num;
+  }
+};
+
+// Função para formatar número para formato brasileiro (BRL) sem símbolo
+export const formatNumberToBRL = (value) => {
+  if (value === null || value === undefined || isNaN(value)) return '';
+  return value.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// Função para validar valor (deve ser um número positivo, aceitando formato brasileiro)
 export const isValidAmount = (amount) => {
-  const num = parseFloat(amount);
+  if (!amount || typeof amount !== 'string') return false;
+  const num = parseBRLAmount(amount);
   return !isNaN(num) && num > 0;
 };
