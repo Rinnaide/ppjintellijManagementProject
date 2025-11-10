@@ -67,13 +67,13 @@ public class SecurityConfig {
             "/api/transactions/**",
             "/api/user-balances/**",
             "/api/notifications/**",
+            "/api/roles/**",
             "/api/user-roles/**"
     };
 
     // Admin role only endpoints
     public static final String[] ENDPOINTS_ADMIN = {
             "/api/users/**",  // Excluding POST which is public
-            "/api/roles/**",
             "/api/audit-logs/**",
             "/api/password-reset-tokens/**",
             "/api/refresh-tokens/**",

@@ -6,11 +6,11 @@ import java.util.Objects;
 public class UserRolesId implements Serializable {
 
     private Long user;
-    private Long role;
+    private Integer role;
 
     public UserRolesId() {}
 
-    public UserRolesId(Long user, Long role) {
+    public UserRolesId(Long user, Integer role) {
         this.user = user;
         this.role = role;
     }
@@ -23,11 +23,11 @@ public class UserRolesId implements Serializable {
         this.user = user;
     }
 
-    public Long getRole() {
+    public Integer getRole() {
         return role;
     }
 
-    public void setRole(Long role) {
+    public void setRole(Integer role) {
         this.role = role;
     }
 
