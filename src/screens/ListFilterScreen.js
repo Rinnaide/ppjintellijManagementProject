@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,9 +17,15 @@ import { useFilter } from '../contexts/FilterContext';
 
 const ListFilterScreen = () => {
   const navigation = useNavigation();
-  const { updateSearchQuery, filteredTransactions } = useFilter();
+  const { updateSearchQuery, filteredTransactions, loadTransactions: loadTransactionsFromContext } = useFilter();
 
   const [searchQuery, setSearchQuery] = useState('');
+
+  useFocusEffect(
+    React.useCallback(() => {
+      loadTransactionsFromContext();
+    }, [])
+  );
 
   const handleClearSearch = () => {
     setSearchQuery('');

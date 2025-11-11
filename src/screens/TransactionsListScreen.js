@@ -22,14 +22,13 @@ import { useFilter } from '../contexts/FilterContext';
 
 const TransactionsListScreen = () => {
   const navigation = useNavigation();
-  const { filteredTransactions, searchQuery, isFiltered, clearFilters } = useFilter();
-  const [transactions, setTransactions] = useState([]);
+  const { allTransactions, filteredTransactions, searchQuery, isFiltered, clearFilters, loadTransactions: loadTransactionsFromContext } = useFilter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
 
-  const loadTransactions = useCallback(async () => {
+  const loadTotals = useCallback(async () => {
     try {
       const user = await AsyncStorage.getItem('user');
       if (!user) {
@@ -38,32 +37,31 @@ const TransactionsListScreen = () => {
       }
 
       const userData = JSON.parse(user);
-      const [transactionsData, incomeData, expenseData] = await Promise.all([
-        transactionService.getTransactionsByUser(userData.id),
+      const [incomeData, expenseData] = await Promise.all([
         transactionService.getTotalIncome(userData.id),
         transactionService.getTotalExpense(userData.id),
       ]);
 
-      setTransactions(transactionsData);
       setTotalIncome(incomeData);
       setTotalExpense(expenseData);
     } catch (error) {
-      Alert.alert('Erro', 'Erro ao carregar transações');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      Alert.alert('Erro', 'Erro ao carregar totais');
     }
   }, []);
 
   useFocusEffect(
     React.useCallback(() => {
-      loadTransactions();
+      loadTransactionsFromContext();
+      loadTotals();
+      setLoading(false);
     }, [])
   );
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadTransactions();
+    loadTransactionsFromContext();
+    loadTotals();
+    setRefreshing(false);
   };
 
   const handleTransactionPress = (transaction) => {
@@ -94,7 +92,7 @@ const TransactionsListScreen = () => {
           onPress: async () => {
             try {
               await transactionService.deleteTransaction(transactionId);
-              loadTransactions(); // Recarregar lista
+              loadTransactionsFromContext(); // Recarregar lista
               Alert.alert('Sucesso', 'Transação excluída com sucesso');
             } catch (error) {
               Alert.alert('Erro', 'Erro ao excluir transação');
@@ -183,7 +181,7 @@ const TransactionsListScreen = () => {
       {/* Lista de transações */}
       <View style={styles.listContainer}>
         <FlatList
-          data={isFiltered ? filteredTransactions : transactions}
+          data={isFiltered ? filteredTransactions : allTransactions}
           renderItem={renderTransaction}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={renderEmpty}
@@ -191,7 +189,7 @@ const TransactionsListScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={(isFiltered ? filteredTransactions.length === 0 : transactions.length === 0) ? styles.emptyList : null}
+          contentContainerStyle={(isFiltered ? filteredTransactions.length === 0 : allTransactions.length === 0) ? styles.emptyList : null}
         />
       </View>
 
