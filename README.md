@@ -87,9 +87,9 @@ cd ppjintellijManagementProject-master
 ```
 
 ### 5. Acesse a aplicação
-- **API:** http://localhost:8089
-- **Swagger UI:** http://localhost:8089/swagger-ui.html
-- **API Docs:** http://localhost:8089/v3/api-docs
+- **API:** http://localhost:8080
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
+- **API Docs:** http://localhost:8080/v3/api-docs
 
 ## Estrutura do Projeto 📁
 
