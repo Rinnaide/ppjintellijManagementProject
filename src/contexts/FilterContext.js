@@ -17,26 +17,45 @@ export const FilterProvider = ({ children }) => {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isFiltered, setIsFiltered] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
-    loadTransactions();
+    loadTransactions(true);
   }, []);
 
   useEffect(() => {
     filterTransactions();
   }, [searchQuery, allTransactions]);
 
-  const loadTransactions = async () => {
+  const loadTransactions = async (reset = false) => {
     try {
       const user = await AsyncStorage.getItem('user');
       if (!user) return;
 
       const userData = JSON.parse(user);
-      const transactionsData = await transactionService.getTransactionsByUser(userData.id);
-      setAllTransactions(transactionsData);
-      setFilteredTransactions(transactionsData);
+      if (reset) {
+        setOffset(0);
+        setHasMore(true);
+        const transactionsData = await transactionService.getTransactionsByUser(userData.id, 10, 0);
+        setAllTransactions(transactionsData);
+        setFilteredTransactions(transactionsData);
+        setOffset(10);
+      } else {
+        const transactionsData = await transactionService.getTransactionsByUser(userData.id, 10, offset);
+        if (transactionsData.length === 0) {
+          setHasMore(false);
+        } else {
+          setAllTransactions(prev => [...prev, ...transactionsData]);
+          setFilteredTransactions(prev => [...prev, ...transactionsData]);
+          setOffset(prev => prev + 10);
+        }
+      }
     } catch (error) {
       console.error('Erro ao carregar transações:', error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -47,11 +66,34 @@ export const FilterProvider = ({ children }) => {
       return;
     }
 
-    const filtered = allTransactions.filter(transaction =>
-      transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredTransactions(filtered);
-    setIsFiltered(true);
+    // If filtering, load all transactions to search properly
+    if (hasMore) {
+      loadAllTransactionsForFilter();
+    } else {
+      const filtered = allTransactions.filter(transaction =>
+        transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredTransactions(filtered);
+      setIsFiltered(true);
+    }
+  };
+
+  const loadAllTransactionsForFilter = async () => {
+    try {
+      const user = await AsyncStorage.getItem('user');
+      if (!user) return;
+
+      const userData = JSON.parse(user);
+      const transactionsData = await transactionService.getTransactionsByUser(userData.id);
+      setAllTransactions(transactionsData);
+      const filtered = transactionsData.filter(transaction =>
+        transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredTransactions(filtered);
+      setIsFiltered(true);
+    } catch (error) {
+      console.error('Erro ao carregar transações para filtro:', error);
+    }
   };
 
   const clearFilters = () => {
@@ -64,6 +106,16 @@ export const FilterProvider = ({ children }) => {
     setSearchQuery(query);
   };
 
+  const loadMore = async () => {
+    if (loadingMore || !hasMore || isFiltered) return;
+    setLoadingMore(true);
+    await loadTransactions(false);
+  };
+
+  const refreshTransactions = async () => {
+    await loadTransactions(true);
+  };
+
   return (
     <FilterContext.Provider value={{
       allTransactions,
@@ -73,6 +125,10 @@ export const FilterProvider = ({ children }) => {
       updateSearchQuery,
       clearFilters,
       loadTransactions,
+      loadMore,
+      loadingMore,
+      hasMore,
+      refreshTransactions,
     }}>
       {children}
     </FilterContext.Provider>

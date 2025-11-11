@@ -1,11 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class TransactionService {
-  async getTransactionsByUser(userId) {
+  async getTransactionsByUser(userId, limit = null, offset = 0) {
     try {
       const transactions = await AsyncStorage.getItem('transactions');
       const transactionList = transactions ? JSON.parse(transactions) : [];
-      return transactionList.filter(t => t.userId === userId);
+      let userTransactions = transactionList.filter(t => t.userId === userId);
+
+      // Sort by date descending (newest first), fallback to createdAt
+      userTransactions.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+
+      // Apply pagination if limit is provided
+      if (limit !== null) {
+        userTransactions = userTransactions.slice(offset, offset + limit);
+      }
+
+      return userTransactions;
     } catch (error) {
       throw error;
     }

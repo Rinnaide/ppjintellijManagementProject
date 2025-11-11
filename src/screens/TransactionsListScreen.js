@@ -22,7 +22,7 @@ import { useFilter } from '../contexts/FilterContext';
 
 const TransactionsListScreen = () => {
   const navigation = useNavigation();
-  const { allTransactions, filteredTransactions, searchQuery, isFiltered, clearFilters, loadTransactions: loadTransactionsFromContext } = useFilter();
+  const { allTransactions, filteredTransactions, searchQuery, isFiltered, clearFilters, loadTransactions: loadTransactionsFromContext, loadMore, loadingMore, hasMore, refreshTransactions } = useFilter();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -59,7 +59,7 @@ const TransactionsListScreen = () => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadTransactionsFromContext();
+    refreshTransactions();
     loadTotals();
     setRefreshing(false);
   };
@@ -92,7 +92,7 @@ const TransactionsListScreen = () => {
           onPress: async () => {
             try {
               await transactionService.deleteTransaction(transactionId);
-              loadTransactionsFromContext(); // Recarregar lista
+              refreshTransactions(); // Recarregar lista
               Alert.alert('Sucesso', 'Transação excluída com sucesso');
             } catch (error) {
               Alert.alert('Erro', 'Erro ao excluir transação');
@@ -190,6 +190,9 @@ const TransactionsListScreen = () => {
           }
           showsVerticalScrollIndicator={false}
           contentContainerStyle={(isFiltered ? filteredTransactions.length === 0 : allTransactions.length === 0) ? styles.emptyList : null}
+          onEndReached={isFiltered ? null : loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={loadingMore && !isFiltered ? <View style={styles.loadingMore}><Text>Carregando mais...</Text></View> : null}
         />
       </View>
 
@@ -310,6 +313,10 @@ const styles = StyleSheet.create({
   },
   clearFilterButton: {
     padding: SPACING.xs,
+  },
+  loadingMore: {
+    padding: SPACING.md,
+    alignItems: 'center',
   },
 });
 

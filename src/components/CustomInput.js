@@ -19,6 +19,8 @@ const CustomInput = ({
   inputStyle,
   multiline = false,
   numberOfLines = 1,
+  numericValidation = false,
+  onNumericChangeText,
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);

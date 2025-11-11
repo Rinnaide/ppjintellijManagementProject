@@ -20,15 +20,19 @@ const ListFilterScreen = () => {
   const { updateSearchQuery, filteredTransactions, loadTransactions: loadTransactionsFromContext } = useFilter();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [localFilteredTransactions, setLocalFilteredTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]);
 
   useFocusEffect(
-    React.useCallback(() => {
-      loadTransactionsFromContext();
+    React.useCallback(async () => {
+      const transactions = await loadTransactionsFromContext();
+      setAllTransactions(transactions || []);
     }, [])
   );
 
   const handleClearSearch = () => {
     setSearchQuery('');
+    setLocalFilteredTransactions([]);
   };
 
   const handleApplyFilters = () => {
@@ -62,10 +66,10 @@ const ListFilterScreen = () => {
 
     return (
       <View style={styles.emptyContainer}>
-        <Ionicons name="receipt-outline" size={64} color={COLORS.lightGray} />
-        <Text style={styles.emptyText}>Nenhuma transação encontrada</Text>
+        <Ionicons name="search-outline" size={64} color={COLORS.lightGray} />
+        <Text style={styles.emptyText}>Comece a buscar</Text>
         <Text style={styles.emptySubtext}>
-          Você ainda não possui transações
+          Digite uma descrição para encontrar transações
         </Text>
       </View>
     );
@@ -81,7 +85,17 @@ const ListFilterScreen = () => {
             placeholder="Buscar por descrição..."
             placeholderTextColor={COLORS.gray}
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              if (text.trim()) {
+                const filtered = allTransactions.filter(transaction =>
+                  transaction.description.toLowerCase().includes(text.toLowerCase())
+                );
+                setLocalFilteredTransactions(filtered);
+              } else {
+                setLocalFilteredTransactions([]);
+              }
+            }}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -96,7 +110,7 @@ const ListFilterScreen = () => {
       {searchQuery.trim() && (
         <View style={styles.resultsInfo}>
           <Text style={styles.resultsText}>
-            {filteredTransactions.length} resultado{filteredTransactions.length !== 1 ? 's' : ''} encontrado{filteredTransactions.length !== 1 ? 's' : ''}
+            {localFilteredTransactions.length} resultado{localFilteredTransactions.length !== 1 ? 's' : ''} encontrado{localFilteredTransactions.length !== 1 ? 's' : ''}
           </Text>
         </View>
       )}
@@ -115,12 +129,12 @@ const ListFilterScreen = () => {
       {/* Lista de transações filtradas */}
       <View style={styles.listContainer}>
         <FlatList
-          data={filteredTransactions}
+          data={searchQuery.trim() ? localFilteredTransactions : []}
           renderItem={renderTransaction}
           keyExtractor={(item) => item.id}
           ListEmptyComponent={renderEmpty}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={filteredTransactions.length === 0 ? styles.emptyList : null}
+          contentContainerStyle={(searchQuery.trim() ? localFilteredTransactions.length === 0 : true) ? styles.emptyList : null}
         />
       </View>
 

@@ -19,7 +19,7 @@ import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
-import { formatCurrencyInput, parseBRLAmount, formatDate } from '../utils/helpers';
+import { formatCurrencyInput, parseBRLAmount, formatDate, sanitizeNumericInput } from '../utils/helpers';
 
 const AddTransactionScreen = () => {
   const navigation = useNavigation();
@@ -71,7 +71,9 @@ const AddTransactionScreen = () => {
       newErrors.description = 'Descrição é obrigatória';
     }
 
-    if (!formData.amount || isNaN(parseBRLAmount(formData.amount)) || parseBRLAmount(formData.amount) <= 0) {
+    if (!formData.amount.trim()) {
+      newErrors.amount = 'Valor é obrigatório';
+    } else if (isNaN(parseBRLAmount(formData.amount)) || parseBRLAmount(formData.amount) <= 0) {
       newErrors.amount = 'Valor deve ser maior que zero';
     }
 
@@ -277,9 +279,12 @@ const AddTransactionScreen = () => {
             label="Valor"
             placeholder="0,00"
             value={formData.amount}
-            onChangeText={(value) => handleInputChange('amount', value)}
+            onChangeText={(value) => {
+              const sanitized = sanitizeNumericInput(value);
+              handleInputChange('amount', sanitized);
+            }}
             onBlur={() => handleInputChange('amount', formatCurrencyInput(formData.amount))}
-            keyboardType="default"
+            keyboardType="numeric"
             error={errors.amount}
           />
 

@@ -20,7 +20,7 @@ import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { COLORS, SPACING } from '../utils/constants';
-import { isValidAmount, formatCurrencyInput, parseBRLAmount, formatNumberToBRL, formatDate } from '../utils/helpers';
+import { isValidAmount, formatCurrencyInput, parseBRLAmount, formatNumberToBRL, formatDate, sanitizeNumericInput } from '../utils/helpers';
 
 const EditTransactionScreen = () => {
   const navigation = useNavigation();
@@ -114,7 +114,7 @@ const EditTransactionScreen = () => {
       newErrors.description = 'Descrição é obrigatória';
     }
 
-    if (!formData.amount) {
+    if (!formData.amount.trim()) {
       newErrors.amount = 'Valor é obrigatório';
     } else if (isNaN(parseBRLAmount(formData.amount)) || parseBRLAmount(formData.amount) <= 0) {
       newErrors.amount = 'Valor deve ser maior que zero';
@@ -247,10 +247,13 @@ const EditTransactionScreen = () => {
               <CustomInput
                 label="Valor"
                 value={formData.amount}
-                onChangeText={(text) => updateFormData('amount', text)}
+                onChangeText={(text) => {
+                  const sanitized = sanitizeNumericInput(text);
+                  updateFormData('amount', sanitized);
+                }}
                 onBlur={() => updateFormData('amount', formatCurrencyInput(formData.amount))}
                 placeholder="0,00"
-                keyboardType="default"
+                keyboardType="numeric"
                 error={errors.amount}
               />
 

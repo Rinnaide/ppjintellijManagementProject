@@ -27,7 +27,7 @@ const HomeScreen = ({ route }) => {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
 
-  const loadTransactions = useCallback(async () => {
+  const loadTransactions = useCallback(async (reset = false) => {
     try {
       const user = await AsyncStorage.getItem('user');
       if (!user) {
@@ -36,15 +36,17 @@ const HomeScreen = ({ route }) => {
       }
 
       const userData = JSON.parse(user);
-      const [transactionsData, incomeData, expenseData] = await Promise.all([
-        transactionService.getTransactionsByUser(userData.id),
-        transactionService.getTotalIncome(userData.id),
-        transactionService.getTotalExpense(userData.id),
-      ]);
+      if (reset) {
+        const [transactionsData, incomeData, expenseData] = await Promise.all([
+          transactionService.getTransactionsByUser(userData.id, null, 0), // Load ALL transactions
+          transactionService.getTotalIncome(userData.id),
+          transactionService.getTotalExpense(userData.id),
+        ]);
 
-      setTransactions(transactionsData.slice(0, 10)); // Mostrar apenas as 10 mais recentes
-      setTotalIncome(incomeData);
-      setTotalExpense(expenseData);
+        setTransactions(transactionsData);
+        setTotalIncome(incomeData);
+        setTotalExpense(expenseData);
+      }
     } catch (error) {
       Alert.alert('Erro', 'Erro ao carregar transações');
     } finally {
@@ -61,8 +63,11 @@ const HomeScreen = ({ route }) => {
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadTransactions();
+    loadTransactions(true);
+    setRefreshing(false);
   };
+
+
 
   const handleTransactionPress = (transaction) => {
     navigation.navigate('TransactionDetail', { transaction });
@@ -256,7 +261,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-
 });
 
 export default HomeScreen;

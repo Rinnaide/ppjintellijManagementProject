@@ -159,3 +159,40 @@ export const isValidAmount = (amount) => {
   const num = parseBRLAmount(amount);
   return !isNaN(num) && num > 0;
 };
+
+// Função para sanitizar entrada numérica (remove caracteres não numéricos, exceto vírgula/ponto)
+export const sanitizeNumericInput = (value) => {
+  if (!value) return '';
+
+  // Remove espaços no início e fim
+  let cleanValue = value.trim();
+
+  // Permite apenas números, vírgula e ponto
+  cleanValue = cleanValue.replace(/[^0-9.,]/g, '');
+
+  // Permite apenas uma vírgula ou ponto como separador decimal
+  const commaIndex = cleanValue.indexOf(',');
+  const dotIndex = cleanValue.indexOf('.');
+
+  if (commaIndex !== -1 && dotIndex !== -1) {
+    // Se tem ambos, mantém apenas a primeira ocorrência
+    if (commaIndex < dotIndex) {
+      cleanValue = cleanValue.substring(0, dotIndex) + cleanValue.substring(dotIndex + 1);
+    } else {
+      cleanValue = cleanValue.substring(0, commaIndex) + cleanValue.substring(commaIndex + 1);
+    }
+  }
+
+  // Limita a parte decimal a 2 dígitos
+  const separatorIndex = cleanValue.indexOf(',') !== -1 ? cleanValue.indexOf(',') : cleanValue.indexOf('.');
+  if (separatorIndex !== -1) {
+    const integerPart = cleanValue.substring(0, separatorIndex);
+    let decimalPart = cleanValue.substring(separatorIndex + 1);
+    if (decimalPart.length > 2) {
+      decimalPart = decimalPart.substring(0, 2);
+    }
+    cleanValue = integerPart + ',' + decimalPart;
+  }
+
+  return cleanValue;
+};
