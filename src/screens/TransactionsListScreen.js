@@ -19,40 +19,18 @@ import transactionService from '../services/transactionService';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { formatCurrency, formatDate } from '../utils/helpers';
 import { useFilter } from '../contexts/FilterContext';
+import { useTransaction } from '../contexts/TransactionContext';
 
 const TransactionsListScreen = () => {
   const navigation = useNavigation();
   const { allTransactions, filteredTransactions, searchQuery, isFiltered, clearFilters, loadTransactions: loadTransactionsFromContext, loadMore, loadingMore, hasMore, refreshTransactions } = useFilter();
+  const { totalIncome, totalExpense } = useTransaction();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [totalIncome, setTotalIncome] = useState(0);
-  const [totalExpense, setTotalExpense] = useState(0);
-
-  const loadTotals = useCallback(async () => {
-    try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) {
-        Alert.alert('Erro', 'Usuário não encontrado');
-        return;
-      }
-
-      const userData = JSON.parse(user);
-      const [incomeData, expenseData] = await Promise.all([
-        transactionService.getTotalIncome(userData.id),
-        transactionService.getTotalExpense(userData.id),
-      ]);
-
-      setTotalIncome(incomeData);
-      setTotalExpense(expenseData);
-    } catch (error) {
-      Alert.alert('Erro', 'Erro ao carregar totais');
-    }
-  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
       loadTransactionsFromContext();
-      loadTotals();
       setLoading(false);
     }, [])
   );
@@ -60,7 +38,6 @@ const TransactionsListScreen = () => {
   const onRefresh = () => {
     setRefreshing(true);
     refreshTransactions();
-    loadTotals();
     setRefreshing(false);
   };
 

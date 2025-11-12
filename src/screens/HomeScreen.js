@@ -16,54 +16,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import TransactionItem from '../components/TransactionItem';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
+import { useTransaction } from '../contexts/TransactionContext';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { formatCurrency } from '../utils/helpers';
 
 const HomeScreen = ({ route }) => {
   const navigation = useNavigation();
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { transactions, totalIncome, totalExpense, loading, loadTransactions } = useTransaction();
   const [refreshing, setRefreshing] = useState(false);
-  const [totalIncome, setTotalIncome] = useState(0);
-  const [totalExpense, setTotalExpense] = useState(0);
-
-  const loadTransactions = useCallback(async (reset = false) => {
-    try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) {
-        Alert.alert('Erro', 'Usuário não encontrado');
-        return;
-      }
-
-      const userData = JSON.parse(user);
-      if (reset) {
-        const [transactionsData, incomeData, expenseData] = await Promise.all([
-          transactionService.getTransactionsByUser(userData.id, null, 0), // Load ALL transactions
-          transactionService.getTotalIncome(userData.id),
-          transactionService.getTotalExpense(userData.id),
-        ]);
-
-        setTransactions(transactionsData);
-        setTotalIncome(incomeData);
-        setTotalExpense(expenseData);
-      }
-    } catch (error) {
-      Alert.alert('Erro', 'Erro ao carregar transações');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
       loadTransactions();
-    }, [])
+    }, [loadTransactions])
   );
 
   const onRefresh = () => {
     setRefreshing(true);
-    loadTransactions(true);
+    loadTransactions();
     setRefreshing(false);
   };
 

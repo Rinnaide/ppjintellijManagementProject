@@ -16,12 +16,14 @@ import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { formatCurrency, formatDate, formatDateTimeFull } from '../utils/helpers';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
+import { useTransaction } from '../contexts/TransactionContext';
 
 const TransactionDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { transaction: initialTransaction } = route.params;
   const [transaction, setTransaction] = React.useState(initialTransaction);
+  const { deleteTransaction } = useTransaction();
 
   const handleDelete = async () => {
     Alert.alert(
@@ -35,6 +37,7 @@ const TransactionDetailScreen = () => {
           onPress: async () => {
             try {
               await transactionService.deleteTransaction(transaction.id);
+              await deleteTransaction(transaction.id);
               Alert.alert('Sucesso', 'Transação excluída com sucesso!');
               navigation.goBack();
             } catch (error) {

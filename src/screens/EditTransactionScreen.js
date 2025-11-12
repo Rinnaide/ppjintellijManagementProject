@@ -19,6 +19,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
+import { useTransaction } from '../contexts/TransactionContext';
 import { COLORS, SPACING } from '../utils/constants';
 import { isValidAmount, formatCurrencyInput, parseBRLAmount, formatNumberToBRL, formatDate, sanitizeNumericInput } from '../utils/helpers';
 
@@ -26,6 +27,7 @@ const EditTransactionScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { transaction, onUpdate } = route.params;
+  const { updateTransaction } = useTransaction();
 
   const [formData, setFormData] = useState({
     description: '',
@@ -151,6 +153,7 @@ const EditTransactionScreen = () => {
       };
 
       const updatedTransaction = await transactionService.updateTransaction(transaction.id, updateData);
+      await updateTransaction(updatedTransaction);
       if (onUpdate) {
         onUpdate(updatedTransaction);
       }
