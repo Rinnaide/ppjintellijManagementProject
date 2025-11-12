@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -22,17 +22,25 @@ const ListFilterScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [localFilteredTransactions, setLocalFilteredTransactions] = useState([]);
   const [allTransactions, setAllTransactions] = useState([]);
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   useFocusEffect(
-    React.useCallback(async () => {
-      const transactions = await loadTransactionsFromContext();
-      setAllTransactions(transactions || []);
+    React.useCallback(() => {
+      const fetchTransactions = async () => {
+        const transactions = await loadTransactionsFromContext();
+        setAllTransactions(transactions || []);
+      };
+      fetchTransactions();
     }, [])
   );
 
   const handleClearSearch = () => {
     setSearchQuery('');
     setLocalFilteredTransactions([]);
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      setDebounceTimer(null);
+    }
   };
 
   const handleApplyFilters = () => {
@@ -43,6 +51,21 @@ const ListFilterScreen = () => {
   const handleTransactionPress = (transaction) => {
     navigation.navigate('TransactionDetail', { transaction });
   };
+
+  const performSearch = useCallback((query) => {
+    if (query.trim()) {
+      const lowerQuery = query.toLowerCase();
+      const filtered = allTransactions.filter(transaction =>
+        transaction.description.toLowerCase().includes(lowerQuery) ||
+        transaction.amount.toString().includes(lowerQuery) ||
+        (transaction.categoryName && transaction.categoryName.toLowerCase().includes(lowerQuery)) ||
+        (transaction.transactionDate && transaction.transactionDate.toLowerCase().includes(lowerQuery))
+      );
+      setLocalFilteredTransactions(filtered);
+    } else {
+      setLocalFilteredTransactions([]);
+    }
+  }, [allTransactions]);
 
   const renderTransaction = ({ item }) => (
     <TransactionItem
@@ -82,19 +105,18 @@ const ListFilterScreen = () => {
           <Ionicons name="search" size={20} color={COLORS.gray} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar por descrição..."
+            placeholder="Buscar por descrição, valor, categoria ou data..."
             placeholderTextColor={COLORS.gray}
             value={searchQuery}
             onChangeText={(text) => {
               setSearchQuery(text);
-              if (text.trim()) {
-                const filtered = allTransactions.filter(transaction =>
-                  transaction.description.toLowerCase().includes(text.toLowerCase())
-                );
-                setLocalFilteredTransactions(filtered);
-              } else {
-                setLocalFilteredTransactions([]);
+              if (debounceTimer) {
+                clearTimeout(debounceTimer);
               }
+              const timer = setTimeout(() => {
+                performSearch(text);
+              }, 300);
+              setDebounceTimer(timer);
             }}
             autoCapitalize="none"
             autoCorrect={false}

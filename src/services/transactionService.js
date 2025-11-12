@@ -54,7 +54,7 @@ class TransactionService {
       const category = categoryList.find(c => c.id === transactionData.categoryId);
 
       const newTransaction = {
-        id: Date.now().toString(),
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         ...transactionData,
         categoryName: category ? category.name : 'Categoria não definida',
         createdAt: new Date().toISOString(),
