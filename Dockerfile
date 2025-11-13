@@ -1,7 +1,8 @@
 FROM maven:3.9.9-amazoncorretto-21-alpine AS build
 COPY . .
-RUN mvnw clean package -DskipTests
-RUN ls -la /target/projectmanagement-0.0.1-SNAPSHOT.jar
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
+RUN ls -la target/projectmanagement-0.0.1-SNAPSHOT.jar
 FROM amazoncorretto:21-alpine
 COPY --from=build target/projectmanagement-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 9090
