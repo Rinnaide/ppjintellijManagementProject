@@ -17,21 +17,7 @@ pipeline {
                 }
             }
         }
-
-        stage('Verificar Docker') {
-            steps {
-                script {
-                    bat 'timeout /t 30 /nobreak > nul'
-                    try {
-                        bat 'docker version'
-                    } catch (Exception e) {
-                        echo 'Docker não pôde ser iniciado ou não está em execução. Verifique se o Docker Desktop está instalado e tente novamente.'
-                        throw e
-                    }
-                }
-            }
-        }
-
+        
         stage('Construir Imagem Docker') {
             steps {
                 script {
