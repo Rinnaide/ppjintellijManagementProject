@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import transactionService from '../services/transactionService';
 
-const FilterContext = createContext();
+const FilterContext = createContext({
+  resetContext: () => {},
+});
 
 export const useFilter = () => {
   const context = useContext(FilterContext);
@@ -20,9 +22,20 @@ export const FilterProvider = ({ children }) => {
   const [offset, setOffset] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const userIdRef = useRef(null);
 
   useEffect(() => {
-    loadTransactions(true);
+    const loadUserTransactions = async () => {
+      const user = await AsyncStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        if (userData.id) {
+          userIdRef.current = userData.id;
+          loadTransactions(true);
+        }
+      }
+    };
+    loadUserTransactions();
   }, []);
 
   useEffect(() => {
@@ -35,6 +48,8 @@ export const FilterProvider = ({ children }) => {
       if (!user) return;
 
       const userData = JSON.parse(user);
+      if (!userData.id) return;
+
       if (reset) {
         setOffset(0);
         setHasMore(true);
@@ -84,6 +99,8 @@ export const FilterProvider = ({ children }) => {
       if (!user) return;
 
       const userData = JSON.parse(user);
+      if (!userData.id) return;
+
       const transactionsData = await transactionService.getTransactionsByUser(userData.id);
       setAllTransactions(transactionsData);
       const filtered = transactionsData.filter(transaction =>
@@ -100,6 +117,17 @@ export const FilterProvider = ({ children }) => {
     setSearchQuery('');
     setIsFiltered(false);
     setFilteredTransactions(allTransactions);
+  };
+
+  const resetContext = () => {
+    setAllTransactions([]);
+    setFilteredTransactions([]);
+    setSearchQuery('');
+    setIsFiltered(false);
+    setOffset(0);
+    setLoadingMore(false);
+    setHasMore(true);
+    userIdRef.current = null;
   };
 
   const updateSearchQuery = (query) => {
@@ -129,6 +157,7 @@ export const FilterProvider = ({ children }) => {
       loadingMore,
       hasMore,
       refreshTransactions,
+      resetContext,
     }}>
       {children}
     </FilterContext.Provider>

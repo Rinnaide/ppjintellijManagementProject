@@ -19,12 +19,14 @@ import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { useTransaction } from '../contexts/TransactionContext';
+import { useFilter } from '../contexts/FilterContext';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { formatCurrencyInput, parseBRLAmount, formatDate, sanitizeNumericInput } from '../utils/helpers';
 
 const AddTransactionScreen = () => {
   const navigation = useNavigation();
   const { addTransaction } = useTransaction();
+  const { refreshTransactions } = useFilter();
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -152,8 +154,11 @@ const AddTransactionScreen = () => {
         userId: userData.id,
       };
 
-      const newTransaction = await transactionService.createTransaction(transactionData);
-      await addTransaction(newTransaction);
+      const newTransaction = await addTransaction(transactionData);
+
+      // Refresh FilterContext to update Transaction List screen
+      refreshTransactions();
+
       Alert.alert('Sucesso', 'Transação criada com sucesso!', [
         {
           text: 'OK',

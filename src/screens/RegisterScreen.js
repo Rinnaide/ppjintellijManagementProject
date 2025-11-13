@@ -25,7 +25,6 @@ const RegisterScreen = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -80,7 +79,6 @@ const RegisterScreen = () => {
         usuario_senha: formData.password,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        phone: formData.phone,
       };
 
       await userService.createUser(userData);
@@ -148,14 +146,7 @@ const RegisterScreen = () => {
               error={errors.email}
             />
 
-            <CustomInput
-              label="Telefone (opcional)"
-              value={formData.phone}
-              onChangeText={(text) => updateFormData('phone', text)}
-              placeholder="Digite seu telefone"
-              keyboardType="phone-pad"
-              leftIcon="call"
-            />
+
 
             <CustomInput
               label="Senha"

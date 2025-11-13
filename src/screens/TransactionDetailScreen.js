@@ -36,8 +36,7 @@ const TransactionDetailScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await transactionService.deleteTransaction(transaction.id);
-              await deleteTransaction(transaction.id);
+              await deleteTransaction(transaction.uniqueId);
               Alert.alert('Sucesso', 'Transação excluída com sucesso!');
               navigation.goBack();
             } catch (error) {

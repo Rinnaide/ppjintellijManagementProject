@@ -180,15 +180,7 @@ const ProfileScreen = () => {
                 <Text style={styles.infoValue}>{user.firstName} {user.lastName}</Text>
               </View>
             </View>
-            {user.phone && (
-              <View style={styles.infoItem}>
-                <Ionicons name="call-outline" size={20} color={COLORS.gray} />
-                <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>Telefone</Text>
-                  <Text style={styles.infoValue}>{user.phone}</Text>
-                </View>
-              </View>
-            )}
+
           </View>
 
           {/* Actions */}

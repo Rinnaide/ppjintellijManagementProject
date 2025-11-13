@@ -12,6 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import authService from '../services/authService';
@@ -68,7 +69,8 @@ const LoginScreen = () => {
     setLoading(true);
     try {
       const response = await authService.login(formData.email, formData.password);
-      // TODO: Store auth token and navigate to main app
+      // Store user data
+      await AsyncStorage.setItem('user', JSON.stringify(response.user));
       Alert.alert('Sucesso', 'Login realizado com sucesso!', [
         {
           text: 'OK',

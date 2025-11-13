@@ -1,11 +1,73 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// UUID v4 generation function
+const generateUUID = () => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 class TransactionService {
-  async getTransactionsByUser(userId, limit = null, offset = 0) {
+  // Migration function to fix existing duplicate IDs - should only run after user authentication
+  async migrateTransactionIds(userId) {
     try {
       const transactions = await AsyncStorage.getItem('transactions');
+      if (!transactions) return;
+
+      const transactionList = JSON.parse(transactions);
+      // Filter transactions for current user only
+      const userTransactions = transactionList.filter(t => t.userId && t.userId === userId);
+      const otherTransactions = transactionList.filter(t => !t.userId || t.userId !== userId);
+
+      if (userTransactions.length === 0) return; // No transactions for this user
+
+      const idSet = new Set();
+      let hasDuplicates = false;
+
+      // Check for duplicates in user's transactions only
+      for (const transaction of userTransactions) {
+        if (idSet.has(transaction.id)) {
+          hasDuplicates = true;
+          break;
+        }
+        idSet.add(transaction.id);
+      }
+
+      let migratedUserTransactions = userTransactions;
+
+      if (hasDuplicates) {
+        console.log('Migrating transaction IDs to fix duplicates');
+        migratedUserTransactions = userTransactions.map(transaction => ({
+          ...transaction,
+          id: generateUUID(),
+          uniqueId: generateUUID(), // Add uniqueId for safe deletion
+        }));
+      } else {
+        // Even if no duplicates, ensure all user's transactions have uniqueId
+        migratedUserTransactions = userTransactions.map(transaction => ({
+          ...transaction,
+          uniqueId: transaction.uniqueId || generateUUID(),
+        }));
+        console.log('Ensuring all transactions have uniqueId');
+      }
+
+      // Combine migrated user transactions with other users' transactions
+      const allTransactions = [...migratedUserTransactions, ...otherTransactions];
+      await AsyncStorage.setItem('transactions', JSON.stringify(allTransactions));
+      console.log('Migration completed successfully');
+    } catch (error) {
+      console.error('Error during transaction ID migration:', error);
+    }
+  }
+
+  async getTransactionsByUser(userId, limit = null, offset = 0) {
+    try {
+      if (!userId) return [];
+      const transactions = await AsyncStorage.getItem('transactions');
       const transactionList = transactions ? JSON.parse(transactions) : [];
-      let userTransactions = transactionList.filter(t => t.userId === userId);
+      let userTransactions = transactionList.filter(t => t.userId && t.userId === userId);
 
       // Sort by date descending (newest first), fallback to createdAt
       userTransactions.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
@@ -37,7 +99,7 @@ class TransactionService {
     try {
       const transactions = await AsyncStorage.getItem('transactions');
       const transactionList = transactions ? JSON.parse(transactions) : [];
-      return transactionList.find(t => t.id === id);
+      return transactionList.find(t => t.uniqueId === id);
     } catch (error) {
       throw error;
     }
@@ -53,9 +115,13 @@ class TransactionService {
       const categoryList = categories ? JSON.parse(categories) : [];
       const category = categoryList.find(c => c.id === transactionData.categoryId);
 
+      // Destructure to exclude any provided id, ensuring we always generate a new unique one
+      const { id, ...restTransactionData } = transactionData;
+
       const newTransaction = {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        ...transactionData,
+        id: generateUUID(),
+        uniqueId: generateUUID(), // Add uniqueId for safe deletion
+        ...restTransactionData,
         categoryName: category ? category.name : 'Categoria não definida',
         createdAt: new Date().toISOString(),
       };
@@ -67,11 +133,11 @@ class TransactionService {
     }
   }
 
-  async updateTransaction(id, transactionData) {
+  async updateTransaction(uniqueId, transactionData) {
     try {
       const transactions = await AsyncStorage.getItem('transactions');
       const transactionList = transactions ? JSON.parse(transactions) : [];
-      const index = transactionList.findIndex(t => t.id === id);
+      const index = transactionList.findIndex(t => t.uniqueId === uniqueId);
       if (index !== -1) {
         // Get updated category name
         const categories = await AsyncStorage.getItem('categories');
@@ -94,11 +160,11 @@ class TransactionService {
     }
   }
 
-  async deleteTransaction(id) {
+  async deleteTransaction(uniqueId) {
     try {
       const transactions = await AsyncStorage.getItem('transactions');
       const transactionList = transactions ? JSON.parse(transactions) : [];
-      const filteredTransactions = transactionList.filter(t => t.id !== id);
+      const filteredTransactions = transactionList.filter(t => t.uniqueId !== uniqueId);
       await AsyncStorage.setItem('transactions', JSON.stringify(filteredTransactions));
       return { message: 'Transaction deleted' };
     } catch (error) {

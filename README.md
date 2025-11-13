@@ -6,69 +6,76 @@ Um aplicativo móvel de gerenciamento financeiro pessoal desenvolvido com React 
 
 ### 📊 Dashboard Principal
 
-- Visualização de saldo total
-- Totais de receitas e despesas
-- Lista das últimas transações
-- Estatísticas rápidas
+- Visualização de saldo total atual
+- Totais de receitas e despesas separadas
+- Lista das últimas transações recentes
+- Estatísticas rápidas e resumo financeiro
+- Navegação intuitiva para outras seções
 
 ### 💰 Gerenciamento de Transações
 
-- Adicionar novas transações (receitas/despesas) com data e hora
-- Visualizar lista completa de transações
-- Detalhes completos de cada transação
-- Editar transações existentes
-- Excluir transações
-- Filtragem por tipo (receita/despesa)
-- Pesquisa por descrição
+- **Adicionar transações**: Criação de novas transações (receitas/despesas) com data, hora e categoria
+- **Visualizar transações**: Lista completa de transações com paginação infinita
+- **Detalhes de transação**: Visualização completa de cada transação individual
+- **Editar transações**: Modificação de transações existentes
+- **Excluir transações**: Remoção segura de transações com confirmação
+- **Filtragem avançada**: Por tipo (receita/despesa), categoria e período
+- **Pesquisa em tempo real**: Busca por descrição de transações
+- **Ordenação automática**: Transações mais recentes primeiro
 
 ### 📂 Sistema de Categorias
 
-- Criar categorias personalizadas com cores
-- Organizar por tipo (receita/despesa)
-- Editar categorias existentes
-- Excluir categorias
-- Seleção de categorias nas transações
+- **Criar categorias**: Categorias personalizadas com cores distintas
+- **Organização por tipo**: Separação automática entre receitas e despesas
+- **Editar categorias**: Modificação de nome, cor e tipo
+- **Excluir categorias**: Remoção com verificação de dependências
+- **Seleção intuitiva**: Interface visual para escolher categorias nas transações
 
 ### 👤 Perfil do Usuário
 
-- Informações pessoais
-- Estatísticas detalhadas:
+- **Informações pessoais**: Nome, email, telefone
+- **Estatísticas detalhadas**:
   - Número total de transações
-  - Total de receitas
-  - Total de despesas
-  - Número de categorias
-- Editar perfil (nome, email, telefone, senha)
-- Logout seguro
+  - Valor total de receitas
+  - Valor total de despesas
+  - Número de categorias criadas
+  - Saldo atual calculado
+- **Editar perfil**: Atualização de dados pessoais e senha
+- **Logout seguro**: Limpeza completa da sessão
 
 ### 🔍 Sistema de Filtros e Pesquisa
 
-- Pesquisa em tempo real por descrição de transações
-- Filtros avançados por período, categoria e tipo
-- Contexto de filtros compartilhado entre telas
+- **Pesquisa inteligente**: Busca em tempo real por descrição
+- **Filtros avançados**: Combinação de período, categoria e tipo
+- **Estado compartilhado**: Filtros mantidos entre navegações
+- **Interface responsiva**: Filtros adaptáveis à tela
 
-### 🔐 Autenticação
+### 🔐 Autenticação e Segurança
 
-- Cadastro de novos usuários
-- Login seguro
-- Armazenamento local de dados
+- **Cadastro seguro**: Registro de novos usuários com validação
+- **Login protegido**: Autenticação com armazenamento local
+- **Isolamento de dados**: Cada usuário vê apenas suas próprias informações
+- **Migração automática**: Correção de dados duplicados na primeira autenticação
+- **Logout completo**: Remoção de dados de sessão
 
 ## Tecnologias Utilizadas
 
-- **React Native**: Framework para desenvolvimento mobile
-- **Expo**: Plataforma para desenvolvimento e build
-- **React Navigation**: Navegação entre telas com abas e stack
-- **AsyncStorage**: Armazenamento local de dados
-- **Ionicons**: Biblioteca de ícones
-- **Date-fns**: Manipulação e formatação de datas
-- **@react-native-community/datetimepicker**: Seleção de data e hora
+- **React Native 0.81.5**: Framework principal para desenvolvimento mobile
+- **Expo 54.0.23**: Plataforma para desenvolvimento e build
+- **React 19.1.0**: Biblioteca base do React
+- **React Navigation**: Sistema completo de navegação (Stack + Bottom Tabs)
+- **AsyncStorage**: Armazenamento local persistente e seguro
+- **@expo/vector-icons/Ionicons**: Biblioteca de ícones vetoriais
+- **date-fns**: Manipulação avançada de datas
+- **@react-native-community/datetimepicker**: Seletores nativos de data/hora
 - **React Native Paper**: Componentes de UI adicionais
-- **Axios**: Cliente HTTP (para futuras integrações)
+- **Axios**: Cliente HTTP para futuras integrações
 
 ## Pré-requisitos
 
 - Node.js (versão 18 ou superior)
 - npm ou yarn
-- Expo CLI
+- Expo CLI (`npm install -g @expo/cli`)
 - Dispositivo físico ou emulador Android/iOS
 
 ## Como Executar
@@ -79,84 +86,100 @@ Um aplicativo móvel de gerenciamento financeiro pessoal desenvolvido com React 
    git clone <url-do-repositorio>
    cd ppjintellijManagementProject
    ```
+
 2. **Instale as dependências:**
 
    ```bash
    npm install
    ```
+
 3. **Inicie o servidor de desenvolvimento:**
 
    ```bash
    npm start
    ```
+
 4. **Execute no dispositivo:**
 
-   - **Android**: Pressione `a` no terminal ou use o app Expo Go
-   - **iOS**: Pressione `i` no terminal ou use o app Expo Go
-   - **Web**: Pressione `w` no terminal
+   - **Android**: Pressione `a` no terminal ou escaneie QR code com Expo Go
+   - **iOS**: Pressione `i` no terminal ou escaneie QR code com Expo Go
+   - **Web**: Pressione `w` no terminal (suporte limitado)
 
 ## Estrutura do Projeto
 
 ```
 src/
 ├── components/          # Componentes reutilizáveis
-│   ├── CustomButton.js
-│   ├── CustomInput.js
-│   └── TransactionItem.js
+│   ├── CustomButton.js      # Botão personalizado com variantes
+│   ├── CustomInput.js       # Campo de entrada com validação
+│   └── TransactionItem.js   # Item de lista de transação
 ├── contexts/            # Contextos React para estado global
-│   └── FilterContext.js
+│   ├── FilterContext.js     # Gerenciamento de filtros e busca
+│   └── TransactionContext.js # Estado de transações e operações
 ├── navigation/          # Configuração de navegação
-│   └── AppNavigator.js
+│   └── AppNavigator.js      # Navegação principal (Stack + Tabs)
 ├── screens/             # Telas do aplicativo
-│   ├── LoginScreen.js
-│   ├── RegisterScreen.js
-│   ├── HomeScreen.js
-│   ├── TransactionsListScreen.js
-│   ├── AddTransactionScreen.js
-│   ├── TransactionDetailScreen.js
-│   ├── EditTransactionScreen.js
-│   ├── CategoriesListScreen.js
-│   ├── AddCategoryScreen.js
-│   ├── EditCategoryScreen.js
-│   ├── ProfileScreen.js
-│   ├── EditProfileScreen.js
-│   └── ListFilterScreen.js
+│   ├── LoginScreen.js       # Tela de login
+│   ├── RegisterScreen.js    # Tela de cadastro
+│   ├── HomeScreen.js        # Dashboard principal
+│   ├── TransactionsListScreen.js # Lista de transações
+│   ├── AddTransactionScreen.js   # Adicionar transação
+│   ├── TransactionDetailScreen.js # Detalhes da transação
+│   ├── EditTransactionScreen.js   # Editar transação
+│   ├── CategoriesListScreen.js    # Lista de categorias
+│   ├── AddCategoryScreen.js       # Adicionar categoria
+│   ├── EditCategoryScreen.js      # Editar categoria
+│   ├── ProfileScreen.js           # Perfil do usuário
+│   ├── EditProfileScreen.js       # Editar perfil
+│   └── ListFilterScreen.js        # Tela de filtros
 ├── services/            # Serviços e APIs
-│   ├── api.js
-│   ├── authService.js
-│   ├── userService.js
-│   ├── transactionService.js
-│   └── categoryService.js
-└── utils/               # Utilitários
-    ├── constants.js
-    ├── helpers.js
-    └── theme.js
+│   ├── api.js               # Configuração base da API
+│   ├── authService.js       # Serviço de autenticação
+│   ├── userService.js       # Serviço de usuários
+│   ├── transactionService.js # Serviço de transações
+│   └── categoryService.js   # Serviço de categorias
+└── utils/               # Utilitários e constantes
+    ├── constants.js         # Cores, espaçamentos, tamanhos
+    ├── helpers.js           # Funções auxiliares (formatação, etc.)
+    └── theme.js             # Configuração de tema
 ```
 
 ## Funcionalidades Técnicas
 
-- **Armazenamento Local**: Todos os dados são armazenados localmente usando AsyncStorage
-- **Navegação**: Sistema de navegação com abas (Home, Transações, Categorias, Perfil) e navegação stack para modais
-- **Validação**: Validação de formulários em tempo real com suporte a formato brasileiro
-- **Formatação BRL**: Suporte completo para entrada e exibição de valores em reais (R$), incluindo separadores de milhares (.) e decimal (,)
-- **Responsividade**: Interface adaptável para diferentes tamanhos de tela
-- **Tema**: Sistema de cores consistente
-- **Ícones**: Biblioteca de ícones vetoriais
-- **Context API**: Gerenciamento de estado global para filtros
-- **Date/Time Pickers**: Seleção de data e hora nativa
+- **Armazenamento Local Seguro**: Dados isolados por usuário usando AsyncStorage
+- **Navegação Híbrida**: Bottom tabs para navegação principal + Stack para modais
+- **Validação Robusta**: Formulários com validação em tempo real
+- **Formatação Brasileira**: Suporte completo para moeda (R$), datas e números
+- **Responsividade**: Interface adaptável a diferentes tamanhos de tela
+- **Tema Consistente**: Sistema de cores padronizado
+- **Context API**: Gerenciamento de estado global para transações e filtros
+- **UUID Generation**: Identificadores únicos para transações
+- **Migração Automática**: Correção de dados duplicados
+- **Paginação Infinita**: Carregamento sob demanda de transações
+- **Busca em Tempo Real**: Filtragem instantânea de resultados
 
 ### Scripts Disponíveis
 
-- `npm start`: Inicia o servidor de desenvolvimento
-- `npm run android`: Executa no Android
-- `npm run ios`: Executa no iOS
-- `npm run web`: Executa na web
+- `npm start`: Inicia o servidor de desenvolvimento Expo
+- `npm run android`: Executa especificamente no Android
+- `npm run ios`: Executa especificamente no iOS
+- `npm run web`: Executa na web (funcionalidades limitadas)
+
+### Arquitetura e Segurança
+
+- **Isolamento de Dados**: Cada usuário acessa apenas seus próprios dados
+- **UUIDs Únicos**: Identificadores únicos para operações seguras
+- **Migração Transparente**: Correção automática de dados inconsistentes
+- **Validação de Input**: Prevenção de dados malformados
+- **Tratamento de Erros**: Logs detalhados e tratamento graceful
+- **Contextos Seguros**: Estado global com isolamento por usuário
 
 ### Convenções de Código
 
-- Componentes funcionais com hooks
-- Estilos organizados por componente
+- Componentes funcionais com React Hooks
+- Estilos organizados por componente (StyleSheet)
 - Nomes de arquivos em PascalCase
-- Constantes em maiúsculo
-- Funções assíncronas com try/catch
-- Suporte a formato brasileiro para moedas e datas
+- Constantes em SCREAMING_SNAKE_CASE
+- Funções assíncronas com tratamento de erros
+- Suporte completo ao formato brasileiro
+- Documentação em português brasileiro

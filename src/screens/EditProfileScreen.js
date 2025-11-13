@@ -27,7 +27,6 @@ const EditProfileScreen = () => {
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
@@ -41,7 +40,6 @@ const EditProfileScreen = () => {
         firstName: initialUser.firstName || '',
         lastName: initialUser.lastName || '',
         email: initialUser.usuarioEmail || '',
-        phone: initialUser.phone || '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: '',
@@ -107,7 +105,6 @@ const EditProfileScreen = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         usuarioEmail: formData.email,
-        phone: formData.phone,
       };
 
       // If password change is requested
@@ -179,13 +176,7 @@ const EditProfileScreen = () => {
                 error={errors.email}
               />
 
-              <CustomInput
-                label="Telefone"
-                value={formData.phone}
-                onChangeText={(text) => updateFormData('phone', text)}
-                placeholder="Digite seu telefone"
-                keyboardType="phone-pad"
-              />
+
 
               <Text style={styles.sectionTitle}>Alterar Senha (opcional)</Text>
 

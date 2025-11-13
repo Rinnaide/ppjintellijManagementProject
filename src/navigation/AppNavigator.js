@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../utils/constants';
-import { FilterProvider } from '../contexts/FilterContext';
 
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
@@ -94,96 +93,94 @@ const MainTabNavigator = () => {
 // Stack Navigator principal
 const AppNavigator = () => {
   return (
-    <FilterProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Login"
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: COLORS.white,
-            },
-            headerTintColor: COLORS.dark,
-            headerTitleStyle: {
-              fontWeight: 'bold',
-            },
-          }}
-        >
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{
-            title: 'Login',
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{
-            title: 'Criar Conta',
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="Main"
-          component={MainTabNavigator}
-          options={{
-            headerShown: false,
-          }}
-        />
-        {/* Additional screens for modals and details */}
-        <Stack.Screen
-          name="TransactionDetail"
-          component={TransactionDetailScreen}
-          options={{
-            title: 'Detalhes da Transação',
-          }}
-        />
-        <Stack.Screen
-          name="AddTransaction"
-          component={AddTransactionScreen}
-          options={{
-            title: 'Adicionar Transação',
-          }}
-        />
-        <Stack.Screen
-          name="EditTransaction"
-          component={EditTransactionScreen}
-          options={{
-            title: 'Editar Transação',
-          }}
-        />
-        <Stack.Screen
-          name="AddCategory"
-          component={AddCategoryScreen}
-          options={{
-            title: 'Adicionar Categoria',
-          }}
-        />
-        <Stack.Screen
-          name="EditCategory"
-          component={EditCategoryScreen}
-          options={{
-            title: 'Editar Categoria',
-          }}
-        />
-        <Stack.Screen
-          name="EditProfile"
-          component={EditProfileScreen}
-          options={{
-            title: 'Editar Perfil',
-          }}
-        />
-        <Stack.Screen
-          name="ListFilter"
-          component={ListFilterScreen}
-          options={{
-            title: 'Filtrar Transações',
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
-    </FilterProvider>
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: COLORS.white,
+          },
+          headerTintColor: COLORS.dark,
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }}
+      >
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          title: 'Login',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Register"
+        component={RegisterScreen}
+        options={{
+          title: 'Criar Conta',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Main"
+        component={MainTabNavigator}
+        options={{
+          headerShown: false,
+        }}
+      />
+      {/* Additional screens for modals and details */}
+      <Stack.Screen
+        name="TransactionDetail"
+        component={TransactionDetailScreen}
+        options={{
+          title: 'Detalhes da Transação',
+        }}
+      />
+      <Stack.Screen
+        name="AddTransaction"
+        component={AddTransactionScreen}
+        options={{
+          title: 'Adicionar Transação',
+        }}
+      />
+      <Stack.Screen
+        name="EditTransaction"
+        component={EditTransactionScreen}
+        options={{
+          title: 'Editar Transação',
+        }}
+      />
+      <Stack.Screen
+        name="AddCategory"
+        component={AddCategoryScreen}
+        options={{
+          title: 'Adicionar Categoria',
+        }}
+      />
+      <Stack.Screen
+        name="EditCategory"
+        component={EditCategoryScreen}
+        options={{
+          title: 'Editar Categoria',
+        }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{
+          title: 'Editar Perfil',
+        }}
+      />
+      <Stack.Screen
+        name="ListFilter"
+        component={ListFilterScreen}
+        options={{
+          title: 'Filtrar Transações',
+        }}
+      />
+    </Stack.Navigator>
+  </NavigationContainer>
   );
 };
 

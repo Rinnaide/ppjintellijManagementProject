@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import transactionService from '../services/transactionService';
 
-const TransactionContext = createContext();
+const TransactionContext = createContext({
+  resetContext: () => {},
+});
 
 export const useTransaction = () => {
   const context = useContext(TransactionContext);
@@ -17,6 +19,8 @@ export const TransactionProvider = ({ children }) => {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [migrationDone, setMigrationDone] = useState(false);
+  const userIdRef = useRef(null);
 
   const loadTransactions = useCallback(async () => {
     try {
@@ -24,6 +28,14 @@ export const TransactionProvider = ({ children }) => {
       if (!user) return;
 
       const userData = JSON.parse(user);
+      if (!userData.id) return;
+
+      // Run migration only once per app session after user is authenticated
+      if (!migrationDone) {
+        await transactionService.migrateTransactionIds(userData.id);
+        setMigrationDone(true);
+      }
+
       const [transactionsData, incomeData, expenseData] = await Promise.all([
         transactionService.getTransactionsByUser(userData.id),
         transactionService.getTotalIncome(userData.id),
@@ -38,7 +50,7 @@ export const TransactionProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [migrationDone]);
 
   const addTransaction = useCallback(async (transactionData) => {
     try {
@@ -60,12 +72,12 @@ export const TransactionProvider = ({ children }) => {
     }
   }, []);
 
-  const updateTransaction = useCallback(async (id, transactionData) => {
+  const updateTransaction = useCallback(async (uniqueId, transactionData) => {
     try {
-      const updatedTransaction = await transactionService.updateTransaction(id, transactionData);
+      const updatedTransaction = await transactionService.updateTransaction(uniqueId, transactionData);
 
       // Update local state
-      setTransactions(prev => prev.map(t => t.id === id ? updatedTransaction : t));
+      setTransactions(prev => prev.map(t => t.uniqueId === uniqueId ? updatedTransaction : t));
 
       // Recalculate totals (simplified - could be optimized)
       await loadTransactions();
@@ -76,13 +88,13 @@ export const TransactionProvider = ({ children }) => {
     }
   }, [loadTransactions]);
 
-  const deleteTransaction = useCallback(async (id) => {
+  const deleteTransaction = useCallback(async (uniqueId) => {
     try {
-      await transactionService.deleteTransaction(id);
+      await transactionService.deleteTransaction(uniqueId);
 
       // Update local state
-      const transactionToDelete = transactions.find(t => t.id === id);
-      setTransactions(prev => prev.filter(t => t.id !== id));
+      const transactionToDelete = transactions.find(t => t.uniqueId === uniqueId);
+      setTransactions(prev => prev.filter(t => t.uniqueId !== uniqueId));
 
       // Update totals
       if (transactionToDelete) {
@@ -97,9 +109,33 @@ export const TransactionProvider = ({ children }) => {
     }
   }, [transactions]);
 
+  // Only load transactions when user is authenticated, not on app mount
   useEffect(() => {
-    loadTransactions();
+    const checkUserAndLoad = async () => {
+      const user = await AsyncStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        if (userData.id) {
+          userIdRef.current = userData.id;
+          loadTransactions();
+        } else {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+    checkUserAndLoad();
   }, [loadTransactions]);
+
+  const resetContext = () => {
+    setTransactions([]);
+    setTotalIncome(0);
+    setTotalExpense(0);
+    setLoading(true);
+    setMigrationDone(false);
+    userIdRef.current = null;
+  };
 
   const balance = totalIncome - totalExpense;
 
@@ -114,6 +150,7 @@ export const TransactionProvider = ({ children }) => {
       addTransaction,
       updateTransaction,
       deleteTransaction,
+      resetContext,
     }}>
       {children}
     </TransactionContext.Provider>

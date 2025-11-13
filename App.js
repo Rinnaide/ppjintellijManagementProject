@@ -4,13 +4,16 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/AppNavigator';
 import { theme } from './src/utils/theme';
 import { TransactionProvider } from './src/contexts/TransactionContext';
+import { FilterProvider } from './src/contexts/FilterContext';
 
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={theme}>
         <TransactionProvider>
-          <AppNavigator />
+          <FilterProvider>
+            <AppNavigator />
+          </FilterProvider>
         </TransactionProvider>
       </PaperProvider>
     </GestureHandlerRootView>

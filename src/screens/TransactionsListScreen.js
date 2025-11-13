@@ -68,7 +68,7 @@ const TransactionsListScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await transactionService.deleteTransaction(transactionId);
+              await transactionService.deleteTransaction(transactionId.uniqueId);
               refreshTransactions(); // Recarregar lista
               Alert.alert('Sucesso', 'Transação excluída com sucesso');
             } catch (error) {
@@ -160,7 +160,7 @@ const TransactionsListScreen = () => {
         <FlatList
           data={isFiltered ? filteredTransactions : allTransactions}
           renderItem={renderTransaction}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.uniqueId}
           ListEmptyComponent={renderEmpty}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
