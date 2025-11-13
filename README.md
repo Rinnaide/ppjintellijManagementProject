@@ -80,7 +80,7 @@ Um aplicativo móvel de gerenciamento financeiro pessoal desenvolvido com React 
 
 ## Como Executar
 
-1. **Clone o repositório:**
+1. **Baixe o repositório ou Git Clone:**
 
    ```bash
    git clone <url-do-repositorio>
@@ -88,22 +88,21 @@ Um aplicativo móvel de gerenciamento financeiro pessoal desenvolvido com React 
    ```
 
 2. **Instale as dependências:**
-
    ```bash
    npm install
    ```
 
 3. **Inicie o servidor de desenvolvimento:**
-
    ```bash
    npm start
    ```
 
 4. **Execute no dispositivo:**
-
    - **Android**: Pressione `a` no terminal ou escaneie QR code com Expo Go
    - **iOS**: Pressione `i` no terminal ou escaneie QR code com Expo Go
-   - **Web**: Pressione `w` no terminal (suporte limitado)
+
+### Scripts Disponíveis
+- `npm i && npm start`: Instala as depêndencias e inicia o servidor de desenvolvimento Expo logo após
 
 ## Estrutura do Projeto
 
@@ -158,15 +157,8 @@ src/
 - **Paginação Infinita**: Carregamento sob demanda de transações
 - **Busca em Tempo Real**: Filtragem instantânea de resultados
 
-### Scripts Disponíveis
-
-- `npm start`: Inicia o servidor de desenvolvimento Expo
-- `npm run android`: Executa especificamente no Android
-- `npm run ios`: Executa especificamente no iOS
-- `npm run web`: Executa na web (funcionalidades limitadas)
 
 ### Arquitetura e Segurança
-
 - **Isolamento de Dados**: Cada usuário acessa apenas seus próprios dados
 - **UUIDs Únicos**: Identificadores únicos para operações seguras
 - **Migração Transparente**: Correção automática de dados inconsistentes
@@ -175,11 +167,9 @@ src/
 - **Contextos Seguros**: Estado global com isolamento por usuário
 
 ### Convenções de Código
-
 - Componentes funcionais com React Hooks
 - Estilos organizados por componente (StyleSheet)
 - Nomes de arquivos em PascalCase
 - Constantes em SCREAMING_SNAKE_CASE
 - Funções assíncronas com tratamento de erros
 - Suporte completo ao formato brasileiro
-- Documentação em português brasileiro
