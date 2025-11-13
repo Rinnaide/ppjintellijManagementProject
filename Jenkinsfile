@@ -18,6 +18,19 @@ pipeline {
             }
         }
 
+        stage('Verificar Docker') {
+            steps {
+                script {
+                    try {
+                        bat 'docker version'
+                    } catch (Exception e) {
+                        echo 'Docker não está em execução. Por favor, inicie o Docker Desktop e tente novamente.'
+                        throw e
+                    }
+                }
+            }
+        }
+
         stage('Construir Imagem Docker') {
             steps {
                 script {
