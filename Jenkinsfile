@@ -1,24 +1,19 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_HOST = 'tcp://localhost:2376'
-        DOCKER_TLS_VERIFY = '1'
-        DOCKER_CERT_PATH = 'C:\\Users\\biblioteca.sl\\.docker\\machine\\machines\\default'
-    }
     stages {
         stage('Verificar Repositório') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], useRemoteConfigs: [[url: 'https://github.com/Rinnaide/ppjintellijManagementProject']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], useRemoteConfigs: [[url: 'https://github.com/Rinnaide/ppjintellijManagementProject.git']]])
             }
         }
 
         stage('Instalar Dependências') {
             steps {
                 script {
-                    // Atualiza o PATH para incluir o executável do Docker no Windows
+                    // Atualiza o PATH se necessário
                     env.PATH = "/usr/bin:$PATH"
                     // Instalar as dependências Maven antes de compilar o projeto
-                    bat 'mvnw.cmd clean install'  // Instala as dependências do Maven
+                    bat 'mvnw clean install'  // Instala as dependências do Maven
                 }
             }
         }
@@ -26,10 +21,6 @@ pipeline {
         stage('Construir Imagem Docker') {
             steps {
                 script {
-                    // Verificar se o Docker está rodando e no modo Linux
-                    bat 'docker version'
-                    bat 'docker info | findstr "OSType"'
-
                     def appName = 'projectmanagement'
                     def imageTag = "${appName}:${env.BUILD_ID}"
 
