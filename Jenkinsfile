@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     // Atualiza o PATH para incluir o executável do Docker no Windows
-                    env.PATH = "/usr/bin;$PATH"
+                    env.PATH = "/usr/bin:$PATH"
                     // Instalar as dependências Maven antes de compilar o projeto
                     bat 'mvnw.cmd clean install'  // Instala as dependências do Maven
                 }
