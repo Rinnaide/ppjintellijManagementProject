@@ -21,10 +21,14 @@ pipeline {
         stage('Verificar Docker') {
             steps {
                 script {
+                    // Tentar iniciar o Docker Desktop se não estiver em execução
+                    powershell 'Start-Process "C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe" -NoNewWindow'
+                    // Aguardar 30 segundos para o Docker iniciar
+                    bat 'timeout /t 30 /nobreak > nul'
                     try {
                         bat 'docker version'
                     } catch (Exception e) {
-                        echo 'Docker não está em execução. Por favor, inicie o Docker Desktop e tente novamente.'
+                        echo 'Docker não pôde ser iniciado ou não está em execução. Verifique se o Docker Desktop está instalado e tente novamente.'
                         throw e
                     }
                 }
