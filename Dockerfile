@@ -4,5 +4,5 @@ RUN ./mvnw clean package -DskipTests
 RUN ls -la target/projectmanagement-0.0.1-SNAPSHOT.jar
 FROM amazoncorretto:21-alpine
 COPY --from=build target/projectmanagement-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8402
+EXPOSE 8403
 CMD ["java", "-jar", "/app.jar"]
