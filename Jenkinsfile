@@ -17,7 +17,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Construir Imagem Docker') {
             steps {
                 script {
