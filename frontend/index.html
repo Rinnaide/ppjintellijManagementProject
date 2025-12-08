@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação - Personal Finance Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Personal Finance Manager</h1>
+        <p>Um aplicativo móvel de gerenciamento financeiro pessoal</p>
+    </header>
+
+    <section id="introducao">
+        <h2>Introdução</h2>
+        <p>Desenvolvido com React Native e Expo, este aplicativo permite aos usuários controlar suas finanças pessoais, gerenciar transações de receitas e despesas, organizar categorias e acompanhar estatísticas financeiras.</p>
+    </section>
+
+    <section id="download">
+        <h2>Baixe o Aplicativo</h2>
+        <p>Clique no botão abaixo para baixar a versão Android do Personal Finance Manager.</p>
+        <a href="https://expo.dev/artifacts/eas/fdb5r37zYrDX3WR7SRXyCn.aab" class="download-btn" target="_blank">Baixar APK</a>
+    </section>
+
+    <section id="funcionalidades">
+        <h2>Funcionalidades Principais</h2>
+        <div class="feature-grid">
+            <div class="feature">
+                <h3>📊 Dashboard Principal</h3>
+                <ul>
+                    <li>Visualização de saldo total atual</li>
+                    <li>Totais de receitas e despesas separadas</li>
+                    <li>Lista das últimas transações recentes</li>
+                    <li>Estatísticas rápidas e resumo financeiro</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>💰 Gerenciamento de Transações</h3>
+                <ul>
+                    <li>Adicionar, visualizar, editar e excluir transações</li>
+                    <li>Filtragem avançada por tipo, categoria e período</li>
+                    <li>Pesquisa em tempo real</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>📂 Sistema de Categorias</h3>
+                <ul>
+                    <li>Criar, editar e excluir categorias personalizadas</li>
+                    <li>Organização por tipo (receitas/despesas)</li>
+                    <li>Seleção intuitiva com cores distintas</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>👤 Perfil do Usuário</h3>
+                <ul>
+                    <li>Informações pessoais e estatísticas detalhadas</li>
+                    <li>Editar perfil e senha</li>
+                    <li>Logout seguro</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>🔍 Sistema de Filtros e Pesquisa</h3>
+                <ul>
+                    <li>Pesquisa inteligente e filtros avançados</li>
+                    <li>Estado compartilhado entre navegações</li>
+                </ul>
+            </div>
+            <div class="feature">
+                <h3>🔐 Autenticação e Segurança</h3>
+                <ul>
+                    <li>Cadastro e login seguros</li>
+                    <li>Isolamento de dados por usuário</li>
+                    <li>Migração automática de dados</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="tecnologias">
+        <h2>Tecnologias Utilizadas</h2>
+        <ul>
+            <li><strong>React Native 0.81.5:</strong> Framework principal para desenvolvimento mobile</li>
+            <li><strong>Expo 54.0.23:</strong> Plataforma para desenvolvimento e build</li>
+            <li><strong>React 19.1.0:</strong> Biblioteca base do React</li>
+            <li><strong>React Navigation:</strong> Sistema completo de navegação</li>
+            <li><strong>AsyncStorage:</strong> Armazenamento local persistente</li>
+            <li><strong>@expo/vector-icons/Ionicons:</strong> Biblioteca de ícones vetoriais</li>
+            <li><strong>date-fns:</strong> Manipulação avançada de datas</li>
+            <li><strong>@react-native-community/datetimepicker:</strong> Seletores nativos de data/hora</li>
+            <li><strong>React Native Paper:</strong> Componentes de UI adicionais</li>
+            <li><strong>Axios:</strong> Cliente HTTP para integrações</li>
+        </ul>
+    </section>
+
+    <section id="estrutura">
+        <h2>Estrutura do Projeto</h2>
+        <pre>
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── CustomButton.js      # Botão personalizado
+│   ├── CustomInput.js       # Campo de entrada
+│   └── TransactionItem.js   # Item de lista de transação
+├── contexts/            # Contextos React para estado global
+│   ├── FilterContext.js     # Gerenciamento de filtros
+│   └── TransactionContext.js # Estado de transações
+├── navigation/          # Configuração de navegação
+│   └── AppNavigator.js      # Navegação principal
+├── screens/             # Telas do aplicativo
+│   ├── LoginScreen.js       # Tela de login
+│   ├── HomeScreen.js        # Dashboard principal
+│   ├── TransactionsListScreen.js # Lista de transações
+│   └── ... (outras telas)
+├── services/            # Serviços e APIs
+│   ├── api.js               # Configuração base da API
+│   ├── authService.js       # Serviço de autenticação
+│   └── ... (outros serviços)
+└── utils/               # Utilitários e constantes
+    ├── constants.js         # Cores, espaçamentos
+    ├── helpers.js           # Funções auxiliares
+    └── theme.js             # Configuração de tema
+        </pre>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Personal Finance Manager (Project Management)</p>
+    </footer>
+</body>
+</html>

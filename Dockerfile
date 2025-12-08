@@ -6,11 +6,11 @@ FROM maven:3.9.9-amazoncorretto-21-alpine AS backend-build
 WORKDIR /backend
 
 # Copia apenas o necessário para cachear melhor
-COPY pom.xml .
-COPY mvnw .
+COPY backend/pom.xml .
+COPY backend/mvnw .
 RUN ./mvnw dependency:go-offline
 
-COPY src ./src
+COPY backend/src ./src
 RUN ./mvnw clean package -DskipTests
 
 

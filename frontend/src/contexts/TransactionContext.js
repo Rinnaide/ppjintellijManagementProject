@@ -1,0 +1,158 @@
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import transactionService from '../services/transactionService';
+
+const TransactionContext = createContext({
+  resetContext: () => {},
+});
+
+export const useTransaction = () => {
+  const context = useContext(TransactionContext);
+  if (!context) {
+    throw new Error('useTransaction must be used within a TransactionProvider');
+  }
+  return context;
+};
+
+export const TransactionProvider = ({ children }) => {
+  const [transactions, setTransactions] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpense, setTotalExpense] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [migrationDone, setMigrationDone] = useState(false);
+  const userIdRef = useRef(null);
+
+  const loadTransactions = useCallback(async () => {
+    try {
+      const user = await AsyncStorage.getItem('user');
+      if (!user) return;
+
+      const userData = JSON.parse(user);
+      if (!userData.id) return;
+
+      // Run migration only once per app session after user is authenticated
+      if (!migrationDone) {
+        await transactionService.migrateTransactionIds(userData.id);
+        setMigrationDone(true);
+      }
+
+      const [transactionsData, incomeData, expenseData] = await Promise.all([
+        transactionService.getTransactionsByUser(userData.id),
+        transactionService.getTotalIncome(userData.id),
+        transactionService.getTotalExpense(userData.id),
+      ]);
+
+      setTransactions(transactionsData);
+      setTotalIncome(incomeData);
+      setTotalExpense(expenseData);
+    } catch (error) {
+      console.error('Erro ao carregar transações:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [migrationDone]);
+
+  const addTransaction = useCallback(async (transactionData) => {
+    try {
+      const newTransaction = await transactionService.createTransaction(transactionData);
+
+      // Update local state immediately
+      setTransactions(prev => [newTransaction, ...prev]);
+
+      // Update totals based on transaction type
+      if (newTransaction.type === 'income') {
+        setTotalIncome(prev => prev + parseFloat(newTransaction.amount));
+      } else if (newTransaction.type === 'expense') {
+        setTotalExpense(prev => prev + parseFloat(newTransaction.amount));
+      }
+
+      return newTransaction;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+  const updateTransaction = useCallback(async (uniqueId, transactionData) => {
+    try {
+      const updatedTransaction = await transactionService.updateTransaction(uniqueId, transactionData);
+
+      // Update local state
+      setTransactions(prev => prev.map(t => t.uniqueId === uniqueId ? updatedTransaction : t));
+
+      // Recalculate totals (simplified - could be optimized)
+      await loadTransactions();
+
+      return updatedTransaction;
+    } catch (error) {
+      throw error;
+    }
+  }, [loadTransactions]);
+
+  const deleteTransaction = useCallback(async (uniqueId) => {
+    try {
+      await transactionService.deleteTransaction(uniqueId);
+
+      // Update local state
+      const transactionToDelete = transactions.find(t => t.uniqueId === uniqueId);
+      setTransactions(prev => prev.filter(t => t.uniqueId !== uniqueId));
+
+      // Update totals
+      if (transactionToDelete) {
+        if (transactionToDelete.type === 'income') {
+          setTotalIncome(prev => prev - parseFloat(transactionToDelete.amount));
+        } else if (transactionToDelete.type === 'expense') {
+          setTotalExpense(prev => prev - parseFloat(transactionToDelete.amount));
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  }, [transactions]);
+
+  // Only load transactions when user is authenticated, not on app mount
+  useEffect(() => {
+    const checkUserAndLoad = async () => {
+      const user = await AsyncStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        if (userData.id) {
+          userIdRef.current = userData.id;
+          loadTransactions();
+        } else {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+    checkUserAndLoad();
+  }, [loadTransactions]);
+
+  const resetContext = () => {
+    setTransactions([]);
+    setTotalIncome(0);
+    setTotalExpense(0);
+    setLoading(true);
+    setMigrationDone(false);
+    userIdRef.current = null;
+  };
+
+  const balance = totalIncome - totalExpense;
+
+  return (
+    <TransactionContext.Provider value={{
+      transactions,
+      totalIncome,
+      totalExpense,
+      balance,
+      loading,
+      loadTransactions,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      resetContext,
+    }}>
+      {children}
+    </TransactionContext.Provider>
+  );
+};
