@@ -10,8 +10,10 @@ pipeline {
         stage('Instalar Dependências') {
             steps {
                 script {
-                    // Atualiza o PATH se necessário
-                    env.PATH = "/usr/bin:$PATH"
+                    // Define JAVA_HOME para o JDK 21 instalado
+                    env.JAVA_HOME = "C:\\Program Files\\Java\\jdk-21"
+                    // Atualiza o PATH para incluir o bin do Java
+                    env.PATH = "${env.JAVA_HOME}\\bin:$PATH"
                     // Instalar as dependências Maven antes de compilar o projeto
                     bat 'cd backend && mvnw clean install'  // Instala as dependências do Maven
                 }
