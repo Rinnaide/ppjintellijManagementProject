@@ -37,7 +37,7 @@ RUN mkdir -p $ANDROID_HOME/cmdline-tools && \
     unzip sdk.zip -d $ANDROID_HOME/cmdline-tools && \
     rm sdk.zip && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest && \
-    yes | sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "platforms;android-34" "build-tools;34.0.0" && \
+    yes | sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "platforms;android-34" "build-tools;34.0.0" "cmake;3.22.1" "ndk;25.1.8937393" && \
     yes | sdkmanager --licenses
 
 WORKDIR /mobile
