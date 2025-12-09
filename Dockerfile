@@ -8,10 +8,10 @@ WORKDIR /backend
 # Copia apenas o necessário para cachear melhor
 COPY backend/pom.xml .
 COPY backend/mvnw .
-RUN mvnw dependency:go-offline
+RUN ./mvnw dependency:go-offline
 
 COPY backend/src ./src
-RUN mvnw clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
 
 
