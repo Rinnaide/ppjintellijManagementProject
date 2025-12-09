@@ -37,7 +37,8 @@ RUN mkdir -p $ANDROID_HOME/cmdline-tools && \
     unzip sdk.zip -d $ANDROID_HOME/cmdline-tools && \
     rm sdk.zip && \
     mv $ANDROID_HOME/cmdline-tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest && \
-    yes | sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+    yes | sdkmanager --sdk_root=${ANDROID_HOME} "platform-tools" "platforms;android-34" "build-tools;34.0.0" && \
+    yes | sdkmanager --licenses
 
 WORKDIR /mobile
 
@@ -51,10 +52,10 @@ COPY frontend/ .
 # Para Expo, prebuild para bare workflow
 RUN npx expo prebuild --platform android
 
-# Dá permissão e gera o APK release
+# Dá permissão e gera o APK debug (para evitar problemas de assinatura)
 WORKDIR /mobile/android
 RUN chmod +x ./gradlew && \
-    ./gradlew assembleRelease
+    ./gradlew assembleDebug --stacktrace
 
 
 
@@ -69,7 +70,7 @@ WORKDIR /app
 COPY --from=backend-build /backend/target/*.jar app.jar
 
 # Copia o APK gerado pelo estágio mobile
-COPY --from=mobile-build /mobile/android/app/build/outputs/apk/release/app-release.apk ./apk/app-release.apk
+COPY --from=mobile-build /mobile/android/app/build/outputs/apk/debug/app-debug.apk ./apk/app-debug.apk
 
 EXPOSE 8403
 
