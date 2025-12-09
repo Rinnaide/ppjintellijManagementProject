@@ -20,14 +20,13 @@ RUN ./mvnw clean package -DskipTests
 #########################################
 # Aqui eu uso uma imagem baseada em Debian/Ubuntu
 # porque Android SDK não gosta muito de Alpine.
-FROM openjdk:21 AS mobile-build
+FROM eclipse-temurin:21-jdk AS mobile-build
 
 # Instala Node, npm, etc. (exemplo simples, ajuste versões conforme seu projeto)
 RUN apt-get update && \
     apt-get install -y curl git unzip && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
-    npm install -g yarn && \
     rm -rf /var/lib/apt/lists/*
 
 # Instala Android SDK (modelo bem básico)
@@ -44,11 +43,14 @@ RUN mkdir -p $ANDROID_HOME/cmdline-tools && \
 WORKDIR /mobile
 
 # Dependências do RN
-COPY mobile/package.json mobile/yarn.lock ./
-RUN yarn install
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
 
 # Copia o restante do projeto mobile
-COPY mobile/ .
+COPY frontend/ .
+
+# Para Expo, prebuild para bare workflow
+RUN npx expo prebuild --platform android
 
 # Dá permissão e gera o APK release
 WORKDIR /mobile/android
