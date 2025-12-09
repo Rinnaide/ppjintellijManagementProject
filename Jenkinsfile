@@ -20,6 +20,15 @@ pipeline {
             }
         }
 
+        stage('Verificar Docker') {
+            steps {
+                script {
+                    // Verifica se o Docker está disponível e funcionando
+                    bat 'docker version'
+                }
+            }
+        }
+
         stage('Construir Imagem Docker') {
             steps {
                 script {
