@@ -9,6 +9,7 @@ WORKDIR /backend
 COPY backend/pom.xml .
 COPY backend/mvnw .
 COPY backend/.mvn ./.mvn
+RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
 COPY backend/src ./src
