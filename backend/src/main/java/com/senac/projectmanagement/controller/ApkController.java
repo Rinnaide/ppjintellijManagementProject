@@ -1,3 +1,5 @@
+package com.senac.projectmanagement.controller;
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
