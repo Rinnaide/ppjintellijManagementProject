@@ -17,7 +17,7 @@ public class ApkController {
 
     @GetMapping("/download/app")
     public ResponseEntity<Resource> downloadApk() throws MalformedURLException {
-        Path path = Paths.get("/app/apk/app-release.apk");
+        Path path = Paths.get("backend/apk/app-release.apk");
         Resource resource = new UrlResource(path.toUri());
 
         if (!resource.exists()) {
