@@ -180,6 +180,12 @@
         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://academico3.rj.senac.br/projectmanagement/download/app" alt="QR Code para download do APK" style="border: 2px solid #007bff; border-radius: 5px; margin-top: 10px;">
     </section>
 
+    <section id="api-status">
+        <h2>Status da API</h2>
+        <p>Verificando conexão com o servidor backend...</p>
+        <div id="api-status-message" style="margin-top: 10px; padding: 10px; border-radius: 5px; background-color: #f0f0f0;"></div>
+    </section>
+
     <section id="funcionalidades">
         <h2>Funcionalidades Principais</h2>
         <div class="feature-grid">
@@ -282,5 +288,42 @@ src/
     <footer>
         <p>&copy; 2025 Personal Finance Manager (Project Management)</p>
     </footer>
+
+    <script>
+        // Função para verificar o status da API
+        async function checkApiStatus() {
+            const statusMessage = document.getElementById('api-status-message');
+            try {
+                const response = await fetch('http://academico3.rj.senac.br/projectmanagement/api/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    const userCount = Array.isArray(users) ? users.length : 0;
+                    statusMessage.innerHTML = `<strong style="color: green;">✅ API Conectada com Sucesso!</strong><br>Total de usuários registrados: ${userCount}`;
+                    statusMessage.style.backgroundColor = '#d4edda';
+                    statusMessage.style.color = '#155724';
+                    statusMessage.style.border = '1px solid #c3e6cb';
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Erro ao conectar com a API:', error);
+                statusMessage.innerHTML = `<strong style="color: red;">❌ Erro na Conexão com a API</strong><br>Detalhes: ${error.message}<br>Verifique se o servidor backend está rodando e acessível.`;
+                statusMessage.style.backgroundColor = '#f8d7da';
+                statusMessage.style.color = '#721c24';
+                statusMessage.style.border = '1px solid #f5c6cb';
+            }
+        }
+
+        // Executar verificação quando a página carregar
+        window.addEventListener('DOMContentLoaded', function() {
+            checkApiStatus();
+        });
+    </script>
 </body>
 </html>

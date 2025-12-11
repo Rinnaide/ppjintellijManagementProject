@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Base URL da API (ajuste conforme necessário)
-const BASE_URL = 'http://10.0.2.2:8080/api'; // Substitua pela URL do seu backend Spring Boot
+const BASE_URL = 'http://academico3.rj.senac.br/projectmanagement/api'; // URL do backend implantado
 
 // Criar instância do Axios
 const api = axios.create({
