@@ -37,7 +37,9 @@ public class SecurityConfig {
         java.util.List<String> endpoints = new java.util.ArrayList<>(java.util.Arrays.asList(
             "/api/auth/login",
             "/api/users/login",
-            "/api/users"  // POST for registration
+            "/api/users",  // POST for registration
+            "/home",  // Public web page
+            "/download/app"  // Public APK download
         ));
 
         // Add Swagger endpoints only in development environment
