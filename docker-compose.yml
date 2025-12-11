@@ -1,5 +1,5 @@
 services:
   app:
-    build: .
+    build: ./backend
     ports:
     - "8403:8403"
