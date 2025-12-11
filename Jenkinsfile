@@ -27,6 +27,7 @@ pipeline {
                     def imageTag = "${appName}:${env.BUILD_ID}"
 
                     // Construir a imagem Docker
+                    dir('backend')
                     bat "docker build -f ./backend/Dockerfile -t ${imageTag} ."
                 }
             }
@@ -43,6 +44,7 @@ pipeline {
             		bat "docker rm -v ${appName} || exit 0"  // Remover o container e os volumes associados
 
                     // Executar o novo container
+                    dir('backend')
                     bat "docker-compose up -d --build"
                 }
             }
