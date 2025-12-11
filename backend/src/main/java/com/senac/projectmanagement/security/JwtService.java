@@ -8,26 +8,24 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secret;
-
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
 
     private Algorithm getAlgorithm() {
-        return Algorithm.HMAC256(secret);
+        return Algorithm.HMAC256("secret");
     }
 
     public String generateToken(String username) {
         return JWT.create()
                 .withSubject(username)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + expirationMs))
+                .withExpiresAt(genExpirationDate())
                 .sign(getAlgorithm());
     }
 
@@ -38,6 +36,10 @@ public class JwtService {
         } catch (JWTVerificationException e) {
             return false;
         }
+    }
+
+    private Instant genExpirationDate(){
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
 
     public String extractUsername(String token) {

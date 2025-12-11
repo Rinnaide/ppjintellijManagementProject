@@ -30,10 +30,11 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private JwtService jwtService;
 
     @Autowired
-    private JwtService jwtService;
+    private AuthenticationManager authenticationManager;
+
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByUserEmail(userRequestDTO.getEmail())) {
