@@ -9,7 +9,7 @@ WORKDIR /backend
 COPY backend/pom.xml .
 RUN mvn dependency:go-offline
 
-COPY backend/src ./src
+COPY backend/src .
 RUN mvn clean package -DskipTests
 
 
