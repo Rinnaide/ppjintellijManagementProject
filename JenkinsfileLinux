@@ -14,8 +14,8 @@ pipeline {
                     env.PATH = "/usr/bin:$PATH"
                     // Instalar as dependências Maven antes de compilar o projeto
                     dir('backend') {
-                    sh 'chmod +x mvnw'
-                    sh './mvnw clean install'  // Instala as dependências do Maven
+                        sh 'chmod +x mvnw'
+                        sh 'mvnw clean install'  // Instala as dependências do Maven
                     }
                 }
             }
@@ -29,8 +29,8 @@ pipeline {
 
                     // Construir a imagem Docker
                     dir('backend') {
-                    sh 'chmod +x mvnw'
-                    sh "docker build -t ${imageTag} ."
+                        sh 'chmod +x mvnw'
+                        sh "docker build -t ${imageTag} ."
                     }
                 }
             }
@@ -65,4 +65,5 @@ pipeline {
     }
 
 }
+
 
