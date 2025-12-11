@@ -13,6 +13,7 @@ pipeline {
                     // Atualiza o PATH se necessário
                     env.PATH = "/usr/bin:$PATH"
                     // Instalar as dependências Maven antes de compilar o projeto
+                    dir('backend')
                     sh './mvnw clean install'  // Instala as dependências do Maven
                 }
             }
@@ -25,6 +26,7 @@ pipeline {
                     def imageTag = "${appName}:${env.BUILD_ID}"
 
                     // Construir a imagem Docker
+                    dir('backend')
                     sh "docker build -t ${imageTag} ."
                 }
             }
@@ -54,4 +56,5 @@ pipeline {
             echo 'Houve um erro durante o deploy.'
         }
     }
+
 }
