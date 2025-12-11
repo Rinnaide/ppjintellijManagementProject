@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class WebController {
     @GetMapping("/home")
     public String home() {
-        return "forward:/index.html";
+        return "forward:/Web.html";
     }
 }
