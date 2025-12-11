@@ -45,9 +45,12 @@ pipeline {
                     // Parar e remover o container existente, se houver
             		sh "docker stop ${appName} || exit 0"
             		sh "docker rm -v ${appName} || exit 0"  // Remover o container e os volumes associados
-
-                    // Executar o novo container
+                    dir('backend'){
+                    sh 'chmod +x mvnw'
+                     // Executar o novo container
                     sh "docker run -d --name ${appName} -p 8403:8403 ${imageTag}"
+                    }
+                   
                 }
             }
         }

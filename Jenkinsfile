@@ -28,7 +28,7 @@ pipeline {
 
                     // Construir a imagem Docker
                     dir('backend') {
-                    bat "docker build -f ./backend/Dockerfile -t ${imageTag} ."
+                    bat "docker build -t ${imageTag} ."
                     }
                 }
             }
