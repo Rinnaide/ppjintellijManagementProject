@@ -40,7 +40,8 @@ public class SecurityConfig {
             "/api/users",  // POST for registration
             "/home",  // Public web page
             "/download/app",  // Public APK download
-            "/index.html"  // Direct access to index.html
+            "/index.html",  // Direct access to index.html
+            "/Web.html"  // Direct access to Web.html
         ));
 
         // Add Swagger endpoints only in development environment
