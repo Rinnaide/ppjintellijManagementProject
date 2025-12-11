@@ -1,14 +1,20 @@
+FROM maven:3.9.9-amazoncorretto-21-alpine AS build
+COPY . .
+RUN mvn clean package -DskipTests
+FROM amazoncorretto:21-alpine
+COPY --from=build target/*.jar app.jar
+EXPOSE 8403
+CMD ["java", "-jar", "/app.jar"]
+
 ############################
 # 1) Build do BACKEND Java #
 ############################
-FROM maven:3.9.9-amazoncorretto-21-alpine AS backend-build
+#FROM maven:3.9.9-amazoncorretto-21-alpine AS backend-build
 
 # Copia apenas o necessário para cachear melhor
-COPY . .
+#COPY . .
 
-RUN mvn clean package -DskipTests
-
-
+#RUN mvn clean package -DskipTests
 
 #########################################
 # 2) Build do APK React Native (Android)#
@@ -51,24 +57,23 @@ RUN mvn clean package -DskipTests
 # Dá permissão e gera o APK debug (para evitar problemas de assinatura)
 #WORKDIR /mobile/android
 #RUN chmod +x ./gradlew && \
-    ./gradlew assembleDebug --stacktrace
+#    ./gradlew assembleDebug --stacktrace
 
 
 
 #########################################
 # 3) Imagem final de runtime do backend #
 #########################################
-FROM amazoncorretto:21-alpine
+#FROM amazoncorretto:21-alpine
 
 #WORKDIR /app
 
 # Copia o JAR do backend
 #COPY --from=backend-build /backend/target/*.jar app.jar
-COPY --from=backend-build target/*.jar app.jar
+#COPY --from=backend-build target/*.jar app.jar
 
 # Copia o APK gerado pelo estágio mobile
-COPY --from=mobile-build /mobile/android/app/build/outputs/apk/debug/app-debug.apk ./apk/app-debug.apk
+#COPY --from=mobile-build /mobile/android/app/build/outputs/apk/debug/app-debug.apk ./apk/app-debug.apk
 
-EXPOSE 8403
-
-CMD ["java", "-jar", "/app.jar"]
+#EXPOSE 8403
+#CMD ["java", "-jar", "/app.jar"]
