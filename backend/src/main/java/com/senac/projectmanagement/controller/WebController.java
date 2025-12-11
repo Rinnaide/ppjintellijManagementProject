@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin("*")
-@RestController
+@Controller
 public class WebController {
     @GetMapping(value = "/home", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> home() {
