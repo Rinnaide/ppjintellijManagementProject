@@ -27,7 +27,7 @@ pipeline {
                     def imageTag = "${appName}:${env.BUILD_ID}"
 
                     // Construir a imagem Docker
-                    bat "docker build -t ${imageTag} ."
+                    bat "docker build -t ${imageTag} ./backend"
                 }
             }
         }
