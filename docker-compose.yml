@@ -1,7 +1,5 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: ./backend/Dockerfile
+    build: .
     ports:
-    - "8403:8403"
+      - "8403:8403"
