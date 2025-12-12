@@ -58,10 +58,6 @@ const CategoriesListScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              // const categoriesData = await AsyncStorage.getItem('categories');
-              // const allCategories = categoriesData ? JSON.parse(categoriesData) : [];
-              // const filteredCategories = allCategories.filter(cat => cat.id !== categoryId);
-              // await AsyncStorage.setItem('categories', JSON.stringify(filteredCategories));
               await loadCategories();
               Alert.alert('Sucesso', 'Categoria excluída com sucesso!');
             } catch (error) {
