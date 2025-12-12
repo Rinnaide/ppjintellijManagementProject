@@ -13,13 +13,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { useTransaction } from '../contexts/TransactionContext';
 import { useFilter } from '../contexts/FilterContext';
+import { useAuth } from '../contexts/AuthContext';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { formatCurrencyInput, parseBRLAmount, formatDate, sanitizeNumericInput } from '../utils/helpers';
 
@@ -27,6 +27,7 @@ const AddTransactionScreen = () => {
   const navigation = useNavigation();
   const { addTransaction } = useTransaction();
   const { refreshTransactions } = useFilter();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -52,10 +53,8 @@ const AddTransactionScreen = () => {
 
   const loadCategories = async (type = null) => {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (user) {
-        const userData = JSON.parse(user);
-        const categoriesData = await categoryService.getCategoriesByUser(userData.id);
+      if (user && user.usuario_id) {
+        const categoriesData = await categoryService.getCategoriesByUser(user.usuario_id);
         const filteredCategories = type ? categoriesData.filter(cat => cat.type === type) : categoriesData;
         setCategories(filteredCategories);
       }
