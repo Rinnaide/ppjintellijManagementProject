@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import authService from '../services/authService';
 
 const AuthContext = createContext();
@@ -41,8 +40,6 @@ export const AuthProvider = ({ children }) => {
       await authService.logout();
       setUser(null);
       setToken(null);
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('user');
     } catch (error) {
       throw error;
     }
