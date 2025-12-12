@@ -47,7 +47,10 @@ export const TransactionProvider = ({ children }) => {
 
       setTransactions(transactionsData);
       setTotalIncome(incomeData);
+
+
       setTotalExpense(totalExpense);
+      if (!totalExpense) setTotalExpense(0)
     } catch (error) {
       console.error('Erro ao carregar transações:', error);
     } finally {

@@ -79,6 +79,10 @@ const LoginScreen = () => {
       Alert.alert('Erro', 'Email ou senha incorretos');
     } finally {
       setLoading(false);
+<<<<<<< HEAD
+      console.log("logou")
+=======
+>>>>>>> eaab03ae2f384475460995202698161cef07eb8a
       navigation.navigate("Main")
     }
   };

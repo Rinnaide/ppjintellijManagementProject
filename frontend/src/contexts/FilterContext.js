@@ -27,8 +27,10 @@ export const FilterProvider = ({ children }) => {
 
   useEffect(() => {
     const loadUserTransactions = async () => {
-      if (user && user.usuario_id) {
-        const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
+      console.log("chamado foi")
+      if (user && user.id) {
+        const transactionsData = await api.get(`/transactions/user/${user.id}`)
+        console.log("resultado da requisição translist ", transactionsData)
         setAllTransactions(transactionsData)
         loadTransactions(true);
       }
