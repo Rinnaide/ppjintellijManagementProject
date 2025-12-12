@@ -27,9 +27,11 @@ api.interceptors.request.use(
 // Interceptor para lidar com respostas e erros
 api.interceptors.response.use(
   (response) => {
-    return response;
+    console.log(response)
+    return response.data;
   },
   async (error) => {
+    console.log(error)
     if (error.response?.status === 401) {
       // Token expirado, redirecionar para login
       await AsyncStorage.removeItem('token');

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import transactionService from '../services/transactionService';
-
+import api from '../services/api'
 const TransactionContext = createContext({
   resetContext: () => {},
 });
@@ -24,27 +24,28 @@ export const TransactionProvider = ({ children }) => {
 
   const loadTransactions = useCallback(async () => {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) return;
-
-      const userData = JSON.parse(user);
-      if (!userData.id) return;
+      const id = await AsyncStorage.getItem('id');
+      if (!id) return;
 
       // Run migration only once per app session after user is authenticated
-      if (!migrationDone) {
-        await transactionService.migrateTransactionIds(userData.id);
-        setMigrationDone(true);
-      }
+      // if (!migrationDone) {
+      //   await transactionService.migrateTransactionIds(userData.id);
+      //   setMigrationDone(true);
+      // }
 
-      const [transactionsData, incomeData, expenseData] = await Promise.all([
-        transactionService.getTransactionsByUser(userData.id),
-        transactionService.getTotalIncome(userData.id),
-        transactionService.getTotalExpense(userData.id),
-      ]);
+      // const transactionsData = await api.get(`/transactions/user/${id}`)
+      const incomeData = await api.get(`/transactions/user/${id}/total-income`)
+      console.log(incomeData)
+      // console.log(transactionsData)
+      // const [transactionsData, incomeData, expenseData] = await Promise.all([
+      //   transactionService.getTransactionsByUser(userData.id),
+      //   transactionService.getTotalIncome(userData.id),
+      //   transactionService.getTotalExpense(userData.id),
+      // ]);
 
-      setTransactions(transactionsData);
+      // setTransactions(transactionsData);
       setTotalIncome(incomeData);
-      setTotalExpense(expenseData);
+      // setTotalExpense(expenseData);
     } catch (error) {
       console.error('Erro ao carregar transações:', error);
     } finally {

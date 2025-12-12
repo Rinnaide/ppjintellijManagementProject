@@ -4,7 +4,7 @@ import com.senac.projectmanagement.entity.TransactionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
+import com.senac.projectmanagement.entity.Transaction;
 public class TransactionResponseDTO {
 
     private Long transactionId;
@@ -39,6 +39,20 @@ public class TransactionResponseDTO {
         this.isDeleted = isDeleted;
     }
 
+    public TransactionResponseDTO(Transaction t) {
+        this.transactionId = t.getTransactionId();
+        this.amount = t.getTransactionAmount();
+        this.description = t.getTransactionDescription();
+        this.transactionType = t.getTransactionType();
+        this.userId = t.getUser().getUserId();
+        this.categoryId = t.getCategory().getCategoryId();
+        this.currency = t.getTransactionCurrency();
+        this.notes = t.getTransactionNotes();
+        this.transactionDate = t.getTransactionDate();
+        this.createdAt = t.getTransactionCreatedAt();
+        this.updatedAt = t.getTransactionUpdatedAt();
+        this.isDeleted = t.getTransactionIsDeleted();
+    }
     public Long getTransactionId() {
         return transactionId;
     }
