@@ -12,13 +12,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import api from '../services/api'
 const AddCategoryScreen = () => {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     type: 'expense', // 'income' or 'expense'
@@ -63,31 +64,24 @@ const AddCategoryScreen = () => {
   const handleSave = async () => {
     if (!validateForm()) return;
 
-    setLoading(true);
-    // try {
-    //   const user = await AsyncStorage.getItem('user');
-    //   if (!user) {
-    //     Alert.alert('Erro', 'Usuário não encontrado');
-    //     return;
-    //   }
-      try{
-      const id = await AsyncStorage.getItem('id')
-      // const categoriesData = await AsyncStorage.getItem('categories');
-      // const categories = categoriesData ? JSON.parse(categoriesData) : [];
+    if (!user) {
+      Alert.alert('Erro', 'Usuário não encontrado');
+      return;
+    }
 
+    setLoading(true);
+    try {
       const newCategory = {
-        'userId': id,
+        'userId': user.id,
         'categoryName': formData.name.trim(),
         'categoryTransactionType': formData.type.toUpperCase(),
         'categoryDescription': formData.description,
         'categoryColorHex': formData.color,
-        'categoryIconName' : 'cachorro'
+        'categoryIconName': 'cachorro'
       };
       console.log(newCategory)
       res = await api.post('/categories', newCategory)
-      
-      // categories.push(newCategory);
-      // await AsyncStorage.setItem('categories', JSON.stringify(categories));
+
       console.log(res)
       if (Platform.OS == 'web') window.alert("Criado com sucesso!!")
 

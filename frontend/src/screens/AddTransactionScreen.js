@@ -137,20 +137,18 @@ const AddTransactionScreen = () => {
       return;
     }
 
+    if (!user) {
+      Alert.alert('Erro', 'Usuário não encontrado');
+      return;
+    }
+
     setLoading(true);
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) {
-        Alert.alert('Erro', 'Usuário não encontrado');
-        return;
-      }
-
-      const userData = JSON.parse(user);
       const transactionData = {
         ...formData,
         amount: parseBRLAmount(formData.amount),
         categoryId: formData.categoryId,
-        userId: userData.id,
+        userId: user.id,
       };
 
       const newTransaction = await addTransaction(transactionData);

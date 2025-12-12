@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import CustomButton from '../components/CustomButton';
 import api from '../services/api'
@@ -24,9 +24,8 @@ const CategoriesListScreen = () => {
 
   const loadCategories = async () => {
     try {
-      const id = await AsyncStorage.getItem('id');
-      if (id) {
-        const res = await api.get(`/categories/user/${id}`)
+      if (user && user.id) {
+        const res = await api.get(`/categories/user/${user.id}`)
         console.log(res)
         setCategories(res);
       }

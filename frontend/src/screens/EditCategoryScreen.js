@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
@@ -71,13 +71,17 @@ const EditCategoryScreen = () => {
   const handleSave = async () => {
     if (!validateForm()) return;
 
+    if (!user) {
+      Alert.alert('Erro', 'Usuário não encontrado');
+      return;
+    }
+
     setLoading(true);
     try {
-      const id = await AsyncStorage.getItem('id')
-      const categories = await api.get(`/categories/user/${id}`)
+      const categories = await api.get(`/categories/user/${user.id}`)
       const categoryIndex = categories.findIndex(cat => cat.id === category.id);
       const body = {
-        'userId' : id,
+        'userId' : user.id,
         'categoryName' : formData.name,
         'categoryTransactionType' : formData.type.toUpperCase(),
         "categoryIconName" : "cachorro",
