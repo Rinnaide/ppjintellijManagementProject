@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import transactionService from '../services/transactionService';
-import api from '../services/api'
+import api from '../services/api';
+import { useAuth } from './AuthContext';
 const TransactionContext = createContext({
   resetContext: () => {},
 });
@@ -15,6 +15,7 @@ export const useTransaction = () => {
 };
 
 export const TransactionProvider = ({ children }) => {
+  const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
@@ -24,36 +25,35 @@ export const TransactionProvider = ({ children }) => {
 
   const loadTransactions = useCallback(async () => {
     try {
-      const id = await AsyncStorage.getItem('id');
-      if (!id) return;
+      if (!user || !user.usuario_id) return;
 
       // Run migration only once per app session after user is authenticated
       // if (!migrationDone) {
-      //   await transactionService.migrateTransactionIds(userData.id);
+      //   await transactionService.migrateTransactionIds(user.usuario_id);
       //   setMigrationDone(true);
       // }
 
-      const transactionsData = await api.get(`/transactions/user/${id}`)
-      const incomeData = await api.get(`/transactions/user/${id}/total-income`)
-      const totalExpense = await api.get(`/transactions/user/${id}/total-income`)
+      const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
+      const incomeData = await api.get(`/transactions/user/${user.usuario_id}/total-income`)
+      const totalExpense = await api.get(`/transactions/user/${user.usuario_id}/total-expense`)
       console.log(transactionsData)
       console.log(incomeData)
       // console.log(transactionsData)
       // const [transactionsData, incomeData, expenseData] = await Promise.all([
-      //   transactionService.getTransactionsByUser(userData.id),
-      //   transactionService.getTotalIncome(userData.id),
-      //   transactionService.getTotalExpense(userData.id),
+      //   transactionService.getTransactionsByUser(user.usuario_id),
+      //   transactionService.getTotalIncome(user.usuario_id),
+      //   transactionService.getTotalExpense(user.usuario_id),
       // ]);
 
       setTransactions(transactionsData);
       setTotalIncome(incomeData);
-      // setTotalExpense(expenseData);
+      setTotalExpense(totalExpense);
     } catch (error) {
       console.error('Erro ao carregar transações:', error);
     } finally {
       setLoading(false);
     }
-  }, [migrationDone]);
+  }, [migrationDone, user]);
 
   const addTransaction = useCallback(async (transactionData) => {
     try {
@@ -114,22 +114,13 @@ export const TransactionProvider = ({ children }) => {
 
   // Only load transactions when user is authenticated, not on app mount
   useEffect(() => {
-    const checkUserAndLoad = async () => {
-      const user = await AsyncStorage.getItem('user');
-      if (user) {
-        const userData = JSON.parse(user);
-        if (userData.id) {
-          userIdRef.current = userData.id;
-          loadTransactions();
-        } else {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-    checkUserAndLoad();
-  }, [loadTransactions]);
+    if (user && user.usuario_id) {
+      userIdRef.current = user.usuario_id;
+      loadTransactions();
+    } else {
+      setLoading(false);
+    }
+  }, [user, loadTransactions]);
 
   const resetContext = () => {
     setTransactions([]);
