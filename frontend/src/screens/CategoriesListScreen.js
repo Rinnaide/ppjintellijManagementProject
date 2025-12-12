@@ -28,7 +28,7 @@ const CategoriesListScreen = () => {
       if (id) {
         res = await api.get(`/categories/user/${id}`)
         console.log(res)
-        // setCategories();
+        setCategories(res);
       }
     } catch (error) {
       console.error('Error loading categories:', error);

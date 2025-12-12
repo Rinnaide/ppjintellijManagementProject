@@ -33,8 +33,10 @@ export const TransactionProvider = ({ children }) => {
       //   setMigrationDone(true);
       // }
 
-      // const transactionsData = await api.get(`/transactions/user/${id}`)
+      const transactionsData = await api.get(`/transactions/user/${id}`)
       const incomeData = await api.get(`/transactions/user/${id}/total-income`)
+      const totalExpense = await api.get(`/transactions/user/${id}/total-income`)
+      console.log(transactionsData)
       console.log(incomeData)
       // console.log(transactionsData)
       // const [transactionsData, incomeData, expenseData] = await Promise.all([
@@ -43,7 +45,7 @@ export const TransactionProvider = ({ children }) => {
       //   transactionService.getTotalExpense(userData.id),
       // ]);
 
-      // setTransactions(transactionsData);
+      setTransactions(transactionsData);
       setTotalIncome(incomeData);
       // setTotalExpense(expenseData);
     } catch (error) {
