@@ -25,24 +25,24 @@ export const TransactionProvider = ({ children }) => {
 
   const loadTransactions = useCallback(async () => {
     try {
-      if (!user || !user.usuario_id) return;
+      if (!user || !user.id) return;
 
       // Run migration only once per app session after user is authenticated
       // if (!migrationDone) {
-      //   await transactionService.migrateTransactionIds(user.usuario_id);
+      //   await transactionService.migrateTransactionIds(user.id);
       //   setMigrationDone(true);
       // }
 
-      const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
-      const incomeData = await api.get(`/transactions/user/${user.usuario_id}/total-income`)
-      const totalExpense = await api.get(`/transactions/user/${user.usuario_id}/total-expense`)
+      const transactionsData = await api.get(`/transactions/user/${user.id}`)
+      const incomeData = await api.get(`/transactions/user/${user.id}/total-income`)
+      const totalExpense = await api.get(`/transactions/user/${user.id}/total-expense`)
       console.log(transactionsData)
       console.log(incomeData)
       // console.log(transactionsData)
       // const [transactionsData, incomeData, expenseData] = await Promise.all([
-      //   transactionService.getTransactionsByUser(user.usuario_id),
-      //   transactionService.getTotalIncome(user.usuario_id),
-      //   transactionService.getTotalExpense(user.usuario_id),
+      //   transactionService.getTransactionsByUser(user.id),
+      //   transactionService.getTotalIncome(user.id),
+      //   transactionService.getTotalExpense(user.id),
       // ]);
 
       setTransactions(transactionsData);

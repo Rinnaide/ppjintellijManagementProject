@@ -72,7 +72,7 @@ const LoginScreen = () => {
       Alert.alert('Sucesso', 'Login realizado com sucesso!', [
         {
           text: 'OK',
-          onPress: () => navigation.replace('Main'),
+          onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Main' }] }),
         },
       ]);
     } catch (error) {
