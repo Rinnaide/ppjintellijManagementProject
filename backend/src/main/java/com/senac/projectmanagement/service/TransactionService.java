@@ -6,6 +6,7 @@ import com.senac.projectmanagement.repository.CategoryRepository;
 import com.senac.projectmanagement.repository.TransactionRepository;
 import com.senac.projectmanagement.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,6 +39,11 @@ public class TransactionService {
 
     public List<Transaction> getTransactionsByUser(Long userId) {
         return transactionRepository.findByUser_UserIdAndTransactionIsDeletedFalse(userId);
+    }
+
+    public List<Transaction> getTransactionsByUser(Long userId, int limit, int offset) {
+        PageRequest pageRequest = PageRequest.of(offset / limit, limit);
+        return transactionRepository.findTransactionsByUserIdPaged(userId, pageRequest).getContent();
     }
 
     public List<Transaction> getTransactionsByUserAndDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
@@ -77,5 +83,37 @@ public class TransactionService {
 
     public Double getTotalExpense(Long userId) {
         return transactionRepository.sumAmountByUserAndType(userId, TransactionType.EXPENSE);
+    }
+
+    public List<Transaction> getFilteredTransactions(Long userId, String searchQuery, Long categoryId, String type, LocalDate startDate, LocalDate endDate) {
+        List<Transaction> transactions = transactionRepository.findByUser_UserIdAndTransactionIsDeletedFalse(userId);
+
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            transactions = transactions.stream()
+                .filter(t -> t.getTransactionDescription().toLowerCase().contains(searchQuery.toLowerCase()) ||
+                           t.getTransactionNotes() != null && t.getTransactionNotes().toLowerCase().contains(searchQuery.toLowerCase()))
+                .toList();
+        }
+
+        if (categoryId != null) {
+            transactions = transactions.stream()
+                .filter(t -> t.getCategory().getCategoryId().equals(categoryId))
+                .toList();
+        }
+
+        if (type != null && !type.trim().isEmpty()) {
+            TransactionType transactionType = TransactionType.valueOf(type.toUpperCase());
+            transactions = transactions.stream()
+                .filter(t -> t.getTransactionType().equals(transactionType))
+                .toList();
+        }
+
+        if (startDate != null && endDate != null) {
+            transactions = transactions.stream()
+                .filter(t -> !t.getTransactionDate().isBefore(startDate) && !t.getTransactionDate().isAfter(endDate))
+                .toList();
+        }
+
+        return transactions;
     }
 }

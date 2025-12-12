@@ -15,8 +15,7 @@ public class TransactionRequestDTO {
     private String notes;
     private LocalDate transactionDate;
 
-    // Constructors, getters, setters
-
+    // Constructors
     public TransactionRequestDTO() {}
 
     public TransactionRequestDTO(Long userId, Long categoryId, TransactionType transactionType, BigDecimal amount, String currency, String description, String notes, LocalDate transactionDate) {
@@ -30,6 +29,7 @@ public class TransactionRequestDTO {
         this.transactionDate = transactionDate;
     }
 
+    // Getters and Setters
     public Long getUserId() {
         return userId;
     }

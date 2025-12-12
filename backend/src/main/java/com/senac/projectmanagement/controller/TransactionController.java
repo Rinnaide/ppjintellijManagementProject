@@ -30,8 +30,8 @@ public class TransactionController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByUser(@PathVariable Long userId) {
-        List<Transaction> transactions = transactionService.getTransactionsByUser(userId);
+    public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByUser(@PathVariable Long userId, @RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "0") int offset) {
+        List<Transaction> transactions = transactionService.getTransactionsByUser(userId, limit, offset);
         List<TransactionResponseDTO> response = transactions.stream()
                 .map(TransactionResponseDTO::new) // Chama o construtor para cada transação
                 .toList();
@@ -39,23 +39,26 @@ public class TransactionController {
     }
 
     @GetMapping("/user/{userId}/date-range")
-    public ResponseEntity<List<Transaction>> getTransactionsByUserAndDateRange(@PathVariable Long userId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByUserAndDateRange(@PathVariable Long userId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         List<Transaction> transactions = transactionService.getTransactionsByUserAndDateRange(userId, startDate, endDate);
-        return ResponseEntity.ok(transactions);
+        List<TransactionResponseDTO> response = transactions.stream()
+                .map(TransactionResponseDTO::new)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Transaction> getTransactionById(@PathVariable Long id) {
+    public ResponseEntity<TransactionResponseDTO> getTransactionById(@PathVariable Long id) {
         return transactionService.getTransactionById(id)
-                .map(ResponseEntity::ok)
+                .map(transaction -> ResponseEntity.ok(new TransactionResponseDTO(transaction)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Transaction> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequestDTO transactionRequestDTO) {
+    public ResponseEntity<TransactionResponseDTO> updateTransaction(@PathVariable Long id, @RequestBody TransactionRequestDTO transactionRequestDTO) {
         try {
             Transaction updatedTransaction = transactionService.updateTransaction(id, transactionRequestDTO);
-            return ResponseEntity.ok(updatedTransaction);
+            return ResponseEntity.ok(new TransactionResponseDTO(updatedTransaction));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -77,5 +80,20 @@ public class TransactionController {
     public ResponseEntity<Double> getTotalExpense(@PathVariable Long userId) {
         Double totalExpense = transactionService.getTotalExpense(userId);
         return ResponseEntity.ok(totalExpense);
+    }
+
+    @GetMapping("/user/{userId}/filtered")
+    public ResponseEntity<List<TransactionResponseDTO>> getFilteredTransactions(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String searchQuery,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<Transaction> transactions = transactionService.getFilteredTransactions(userId, searchQuery, categoryId, type, startDate, endDate);
+        List<TransactionResponseDTO> response = transactions.stream()
+                .map(TransactionResponseDTO::new)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 }
