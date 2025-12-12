@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import transactionService from '../services/transactionService';
-import api from '../services/api'
+import api from '../services/api';
+import { useAuth } from './AuthContext';
 const FilterContext = createContext({
   resetContext: () => {},
 });
@@ -15,6 +15,7 @@ export const useFilter = () => {
 };
 
 export const FilterProvider = ({ children }) => {
+  const { user } = useAuth();
   const [allTransactions, setAllTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,16 +27,14 @@ export const FilterProvider = ({ children }) => {
 
   useEffect(() => {
     const loadUserTransactions = async () => {
-      const id = await AsyncStorage.getItem('id');
-      if (id) {
-        const transactionsData = await api.get(`/transactions/user/${id}`)
+      if (user && user.usuario_id) {
+        const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
         setAllTransactions(transactionsData)
         loadTransactions(true);
-        
       }
     };
     loadUserTransactions();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     filterTransactions();
@@ -43,18 +42,17 @@ export const FilterProvider = ({ children }) => {
 
   const loadTransactions = async (reset = false) => {
     try {
-      const id = await AsyncStorage.getItem('id');
-      if (!id) return;
+      if (!user || !user.usuario_id) return;
 
       if (reset) {
         setOffset(0);
         setHasMore(true);
-        const transactionsData = await api.get(`/transactions/user/${id}`)
+        const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
         setAllTransactions(transactionsData);
         setFilteredTransactions(transactionsData);
         setOffset(10);
       } else {
-        const transactionsData = await api.get(`/transactions/user/${id}`)
+        const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
         if (transactionsData.length === 0) {
           setHasMore(false);
         }
@@ -87,11 +85,9 @@ export const FilterProvider = ({ children }) => {
 
   const loadAllTransactionsForFilter = async () => {
     try {
-      const id = await AsyncStorage.getItem('id');
-      if (!id) return;
+      if (!user || !user.usuario_id) return;
 
-
-      const transactionsData = await api.get(`/transactions/user/${id}`)
+      const transactionsData = await api.get(`/transactions/user/${user.usuario_id}`)
       setAllTransactions(transactionsData);
       let filtered = transactionsData.filter(transaction =>
         transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
