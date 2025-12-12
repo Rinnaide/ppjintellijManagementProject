@@ -15,13 +15,15 @@ public class UserDetailsImpl implements UserDetails {
     private String nomeUsuario;
     private String email;
     private String password;
+    private Boolean userIsActive;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long idUsuario, String nomeUsuario, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(Long idUsuario, String nomeUsuario, String email, String password, Boolean userIsActive, Collection<? extends GrantedAuthority> authorities) {
         this.idUsuario = idUsuario;
         this.nomeUsuario = nomeUsuario;
         this.email = email;
         this.password = password;
+        this.userIsActive = userIsActive;
         this.authorities = authorities;
     }
 
@@ -32,6 +34,7 @@ public class UserDetailsImpl implements UserDetails {
                 nomeUsuario,
                 user.getUserEmail(),
                 user.getUserPasswordHash(),
+                user.getUserIsActive(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
     }
@@ -76,6 +79,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return userIsActive != null ? userIsActive : false;
     }
 }
