@@ -18,12 +18,13 @@ public class UserDetailsImpl implements UserDetails {
     private Boolean userIsActive;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long idUsuario, String nomeUsuario, String email, String password, Boolean userIsActive, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(Long idUsuario, String nomeUsuario, String email, String password, Boolean userIsActive, Boolean userEmailVerified, Collection<? extends GrantedAuthority> authorities) {
         this.idUsuario = idUsuario;
         this.nomeUsuario = nomeUsuario;
         this.email = email;
         this.password = password;
         this.userIsActive = userIsActive;
+        this.userEmailVerified = userEmailVerified;
         this.authorities = authorities;
     }
 
@@ -79,6 +80,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return userIsActive != null ? userIsActive : false;
+        return (userIsActive != null ? userIsActive : false) && (userEmailVerified != null ? userEmailVerified : false);
     }
 }
