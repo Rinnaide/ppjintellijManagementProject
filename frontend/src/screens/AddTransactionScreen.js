@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,16 +42,7 @@ const AddTransactionScreen = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  useEffect(() => {
-    // Load categories only if type is selected
-    if (formData.type) {
-      loadCategories(formData.type);
-    } else {
-      setCategories([]);
-    }
-  }, [formData.type]);
-
-  const loadCategories = async (type = null) => {
+  const loadCategories = useCallback(async (type = null) => {
     try {
       if (user && user.usuario_id) {
         const categoriesData = await categoryService.getCategoriesByUser(user.usuario_id);
@@ -61,7 +52,25 @@ const AddTransactionScreen = () => {
     } catch (error) {
       Alert.alert('Erro', 'Erro ao carregar categorias');
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    // Load categories only if type is selected
+    if (formData.type) {
+      loadCategories(formData.type);
+    } else {
+      setCategories([]);
+    }
+  }, [formData.type, loadCategories]);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Reload categories when screen gains focus, if type is selected
+      if (formData.type) {
+        loadCategories(formData.type);
+      }
+    }, [formData.type, loadCategories])
+  );
 
   const validateForm = () => {
     const newErrors = {};
@@ -224,7 +233,16 @@ const AddTransactionScreen = () => {
 
   const renderCategorySelector = () => (
     <View style={styles.categoryContainer}>
-      <Text style={styles.label}>Categoria</Text>
+      <View style={styles.categoryHeader}>
+        <Text style={styles.label}>Categoria</Text>
+        <TouchableOpacity
+          style={styles.addCategoryButton}
+          onPress={() => navigation.navigate('AddCategory')}
+        >
+          <Ionicons name="add" size={20} color={COLORS.primary} />
+          <Text style={styles.addCategoryText}>Nova</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -416,6 +434,23 @@ const styles = StyleSheet.create({
   },
   categoryContainer: {
     marginBottom: SPACING.lg,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  addCategoryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
+  },
+  addCategoryText: {
+    fontSize: FONT_SIZES.small,
+    color: COLORS.primary,
+    marginLeft: SPACING.xs,
   },
   categoryScroll: {
     marginBottom: SPACING.sm,
