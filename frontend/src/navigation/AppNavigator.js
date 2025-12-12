@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../utils/constants';
+import { useAuth } from '../contexts/AuthContext';
 
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
@@ -92,10 +93,16 @@ const MainTabNavigator = () => {
 
 // Stack Navigator principal
 const AppNavigator = () => {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return null; // or a loading screen
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName={isAuthenticated() ? "Main" : "Login"}
         screenOptions={{
           headerStyle: {
             backgroundColor: COLORS.white,
