@@ -17,7 +17,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import authService from '../services/authService';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
-
+import api from '../services/api'
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
@@ -30,7 +30,6 @@ const LoginScreen = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.email.trim()) {
       newErrors.email = 'Email é obrigatório';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
@@ -68,9 +67,27 @@ const LoginScreen = () => {
 
     setLoading(true);
     try {
-      const response = await authService.login(formData.email, formData.password);
-      // Store user data
-      await AsyncStorage.setItem('user', JSON.stringify(response.user));
+      // const response = await authService.login(formData.email, formData.password);
+      // // Store user data
+      // await AsyncStorage.setItem('user', JSON.stringify(response.user));
+      console.log("chegou aqui")
+      const body = {'usuarioEmail': formData.email, 'usuario_senha': formData.password}
+      console.log(body)
+
+      const res = await api.post('/users/login', body)
+      try{
+        const token = res.usuario_token
+        const id = res.usuario_id
+        await AsyncStorage.setItem('token', token);
+        await AsyncStorage.setItem('id', id);
+      }
+      catch(error){
+        console.log('erro: ', error)
+        return
+      }
+      if (Platform.OS === 'web') {
+          navigation.replace('Main')
+      }
       Alert.alert('Sucesso', 'Login realizado com sucesso!', [
         {
           text: 'OK',
@@ -140,7 +157,7 @@ const LoginScreen = () => {
 
             <CustomButton
               title="Entrar"
-              onPress={handleLogin}
+              onPress={async () =>{handleLogin()}}
               loading={loading}
               style={styles.loginButton}
             />

@@ -14,7 +14,7 @@ CMD ["java", "-jar", "/app.jar"]
 # Copia apenas o necessário para cachear melhor
 #COPY . .
 
-#RUN mvn clean package -DskipTests
+#RUN mvn clean package -DskipTests'
 
 #########################################
 # 2) Build do APK React Native (Android)#

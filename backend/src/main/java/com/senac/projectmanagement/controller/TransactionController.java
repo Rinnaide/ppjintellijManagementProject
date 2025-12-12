@@ -1,6 +1,7 @@
 package com.senac.projectmanagement.controller;
 
 import com.senac.projectmanagement.dto.TransactionRequestDTO;
+import com.senac.projectmanagement.dto.TransactionResponseDTO;
 import com.senac.projectmanagement.entity.Transaction;
 import com.senac.projectmanagement.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +20,22 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @PostMapping
-    public ResponseEntity<Transaction> createTransaction(@RequestBody TransactionRequestDTO transactionRequestDTO) {
+    public ResponseEntity<TransactionResponseDTO> createTransaction(@RequestBody TransactionRequestDTO transactionRequestDTO) {
         Transaction createdTransaction = transactionService.createTransaction(transactionRequestDTO);
-        return ResponseEntity.ok(createdTransaction);
+
+        // Convert Entity to DTO before returning
+        TransactionResponseDTO response = new TransactionResponseDTO(createdTransaction);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Transaction>> getTransactionsByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<TransactionResponseDTO>> getTransactionsByUser(@PathVariable Long userId) {
         List<Transaction> transactions = transactionService.getTransactionsByUser(userId);
-        return ResponseEntity.ok(transactions);
+        List<TransactionResponseDTO> response = transactions.stream()
+                .map(TransactionResponseDTO::new) // Chama o construtor para cada transação
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user/{userId}/date-range")

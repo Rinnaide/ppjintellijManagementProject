@@ -16,7 +16,7 @@ import CustomButton from '../components/CustomButton';
 import userService from '../services/userService';
 import { isValidEmail, isValidPassword } from '../utils/helpers';
 import { COLORS, SPACING } from '../utils/constants';
-
+import api from '../services/api'
 const RegisterScreen = () => {
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
@@ -25,6 +25,7 @@ const RegisterScreen = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    phone: ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -45,6 +46,10 @@ const RegisterScreen = () => {
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'Sobrenome é obrigatório';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Número é obrigatório';
     }
 
     if (!formData.email.trim()) {
@@ -75,13 +80,19 @@ const RegisterScreen = () => {
     setLoading(true);
     try {
       const userData = {
-        usuarioEmail: formData.email,
-        usuario_senha: formData.password,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-      };
+        'email': formData.email,
+        'password': formData.password,
+        'firstName': formData.firstName,
+        'lastName': formData.lastName,
+        'phone': formData.phone,
+        'defaultCurrency': 'BRL',
+        'timezone': 'America/Sao_Paulo',
+        'isActive': true,
+        'emailVerified': true
 
-      await userService.createUser(userData);
+      };
+      console.log(userData)
+      await api.post('/users', userData)
       Alert.alert(
         'Sucesso',
         'Conta criada com sucesso! Faça login para continuar.',
@@ -146,7 +157,14 @@ const RegisterScreen = () => {
               error={errors.email}
             />
 
-
+            <CustomInput
+              label="Numero de telefone"
+              value={formData.phone}
+              onChangeText={(text) => updateFormData('phone', text)}
+              placeholder="Digite seu numero de telefone"
+              style={styles.halfInput}
+              error={errors.confirmPassword}
+            />
 
             <CustomInput
               label="Senha"
@@ -167,6 +185,8 @@ const RegisterScreen = () => {
               leftIcon="lock-closed"
               error={errors.confirmPassword}
             />
+
+
 
             <CustomButton
               title="Criar Conta"
