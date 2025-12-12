@@ -38,7 +38,7 @@ public class Transaction {
     @Column(name = "transaction_description", nullable = false, length = 255)
     private String transactionDescription;
 
-    @Column(name = "transaction_notes", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "transaction_notes", columnDefinition = "TEXT")
     private String transactionNotes;
 
     @Column(name = "transaction_date", nullable = false)
