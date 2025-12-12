@@ -114,8 +114,8 @@ export const TransactionProvider = ({ children }) => {
 
   // Only load transactions when user is authenticated, not on app mount
   useEffect(() => {
-    if (user && user.usuario_id) {
-      userIdRef.current = user.usuario_id;
+    if (user && user.id) {
+      userIdRef.current = user.id;
       loadTransactions();
     } else {
       setLoading(false);
