@@ -74,7 +74,7 @@ const ProfileScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.removeItem('user');
+              await logout();
               navigation.reset({
                 index: 0,
                 routes: [{ name: 'Login' }],

@@ -17,8 +17,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in (in a real app, you might check local storage or session)
-    // For now, since we're removing AsyncStorage, we'll start with no persisted state
     setIsLoading(false);
   }, []);
 
