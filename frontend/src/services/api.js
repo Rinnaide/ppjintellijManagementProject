@@ -1,5 +1,4 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Base URL da API (ajuste conforme necessário)
 const BASE_URL = 'http://academico3.rj.senac.br/projectmanagement/api'; // URL do backend implantado
@@ -10,12 +9,19 @@ const api = axios.create({
   timeout: 10000,
 });
 
+// Global token variable
+let globalToken = null;
+
+// Function to set the token
+export const setApiToken = (token) => {
+  globalToken = token;
+};
+
 // Interceptor para adicionar token JWT nas requisições
 api.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (globalToken) {
+      config.headers.Authorization = `Bearer ${globalToken}`;
     }
     return config;
   },
@@ -30,11 +36,11 @@ api.interceptors.response.use(
     console.log(response)
     return response.data;
   },
-  async (error) => {
+  (error) => {
     console.log(error)
     if (error.response?.status === 401) {
-      // Token expirado, redirecionar para login
-      await AsyncStorage.removeItem('token');
+      // Token expirado, limpar token global
+      globalToken = null;
       // Aqui você pode adicionar lógica para redirecionar para a tela de login
     }
     return Promise.reject(error);

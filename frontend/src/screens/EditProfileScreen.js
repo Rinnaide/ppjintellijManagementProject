@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import userService from '../services/userService';
+import { useAuth } from '../contexts/AuthContext';
 import { COLORS, SPACING } from '../utils/constants';
 import { isValidEmail, isValidPassword } from '../utils/helpers';
 
@@ -22,6 +23,7 @@ const EditProfileScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { user: initialUser } = route.params || {};
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -94,13 +96,11 @@ const EditProfileScreen = () => {
 
     setLoading(true);
     try {
-      const user = await AsyncStorage.getItem('user');
       if (!user) {
         Alert.alert('Erro', 'Usuário não encontrado');
         return;
       }
 
-      const userData = JSON.parse(user);
       const updateData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -110,7 +110,7 @@ const EditProfileScreen = () => {
       // If password change is requested
       if (formData.newPassword) {
         // Verify current password
-        const isValidCurrentPassword = await userService.verifyPassword(userData.id, formData.currentPassword);
+        const isValidCurrentPassword = await userService.verifyPassword(user.id, formData.currentPassword);
         if (!isValidCurrentPassword) {
           Alert.alert('Erro', 'Senha atual incorreta');
           setLoading(false);
@@ -119,11 +119,7 @@ const EditProfileScreen = () => {
         updateData.usuario_senha = formData.newPassword;
       }
 
-      await userService.updateUser(userData.id, updateData);
-
-      // Update local storage
-      const updatedUser = { ...userData, ...updateData };
-      await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+      await userService.updateUser(user.id, updateData);
 
       Alert.alert(
         'Sucesso',

@@ -20,7 +20,7 @@ import { formatCurrency } from '../utils/helpers';
 import api from '../services/api';
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
   const [stats, setStats] = useState({
     totalTransactions: 0,
     totalIncome: 0,
@@ -41,18 +41,11 @@ const ProfileScreen = () => {
 
   const loadUserData = async () => {
     try {
-      const id = await AsyncStorage.getItem('id');
-      if (id) {
-      const user = await api.get(`/users/${id}`)
-      setUser(user)
-
-        //   categoryService.getCategoriesByUser(parsedUser.id),
-        // ]);
-
-        const transactions = await api.get(`/transactions/user/${id}`)
-        const income = await api.get(`/transactions/user/${id}/total-income`)
-        const expense = await api.get(`/transactions/user/${id}/total-expense`)
-        const categories = await api.get(`/categories/user/${id}`)
+      if (user) {
+        const transactions = await api.get(`/transactions/user/${user.id}`)
+        const income = await api.get(`/transactions/user/${user.id}/total-income`)
+        const expense = await api.get(`/transactions/user/${user.id}/total-expense`)
+        const categories = await api.get(`/categories/user/${user.id}`)
         console.log(`expense: ${expense}`)
         if (expense.trim() == '') expense = 0
         console.log(expense)

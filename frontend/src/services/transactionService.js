@@ -1,83 +1,20 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// UUID v4 generation function
-const generateUUID = () => {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
-};
+import api from './api';
 
 class TransactionService {
-  // Migration function to fix existing duplicate IDs - should only run after user authentication
   async migrateTransactionIds(userId) {
-    try {
-      const transactions = await AsyncStorage.getItem('transactions');
-      if (!transactions) return;
-
-      const transactionList = JSON.parse(transactions);
-      // Filter transactions for current user only
-      const userTransactions = transactionList.filter(t => t.userId && t.userId === userId);
-      const otherTransactions = transactionList.filter(t => !t.userId || t.userId !== userId);
-
-      if (userTransactions.length === 0) return; // No transactions for this user
-
-      const idSet = new Set();
-      let hasDuplicates = false;
-
-      // Check for duplicates in user's transactions only
-      for (const transaction of userTransactions) {
-        if (idSet.has(transaction.id)) {
-          hasDuplicates = true;
-          break;
-        }
-        idSet.add(transaction.id);
-      }
-
-      let migratedUserTransactions = userTransactions;
-
-      if (hasDuplicates) {
-        console.log('Migrating transaction IDs to fix duplicates');
-        migratedUserTransactions = userTransactions.map(transaction => ({
-          ...transaction,
-          id: generateUUID(),
-          uniqueId: generateUUID(), // Add uniqueId for safe deletion
-        }));
-      } else {
-        // Even if no duplicates, ensure all user's transactions have uniqueId
-        migratedUserTransactions = userTransactions.map(transaction => ({
-          ...transaction,
-          uniqueId: transaction.uniqueId || generateUUID(),
-        }));
-        console.log('Ensuring all transactions have uniqueId');
-      }
-
-      // Combine migrated user transactions with other users' transactions
-      const allTransactions = [...migratedUserTransactions, ...otherTransactions];
-      await AsyncStorage.setItem('transactions', JSON.stringify(allTransactions));
-      console.log('Migration completed successfully');
-    } catch (error) {
-      console.error('Error during transaction ID migration:', error);
-    }
+    // Migration not needed with backend
+    console.log('Migration not needed with backend');
   }
 
   async getTransactionsByUser(userId, limit = null, offset = 0) {
     try {
       if (!userId) return [];
-      const transactions = await AsyncStorage.getItem('transactions');
-      const transactionList = transactions ? JSON.parse(transactions) : [];
-      let userTransactions = transactionList.filter(t => t.userId && t.userId === userId);
-
-      // Sort by date descending (newest first), fallback to createdAt
-      userTransactions.sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
-
-      // Apply pagination if limit is provided
+      let url = `/transactions/user/${userId}`;
       if (limit !== null) {
-        userTransactions = userTransactions.slice(offset, offset + limit);
+        url += `/paged?limit=${limit}&offset=${offset}`;
       }
-
-      return userTransactions;
+      const response = await api.get(url);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -85,11 +22,8 @@ class TransactionService {
 
   async getTransactionsByUserAndDateRange(userId, startDate, endDate) {
     try {
-      const transactions = await this.getTransactionsByUser(userId);
-      return transactions.filter(t => {
-        const transactionDate = new Date(t.date);
-        return transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
-      });
+      const response = await api.get(`/transactions/user/${userId}/date-range?startDate=${startDate}&endDate=${endDate}`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -97,9 +31,8 @@ class TransactionService {
 
   async getTransactionById(id) {
     try {
-      const transactions = await AsyncStorage.getItem('transactions');
-      const transactionList = transactions ? JSON.parse(transactions) : [];
-      return transactionList.find(t => t.uniqueId === id);
+      const response = await api.get(`/transactions/${id}`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -107,66 +40,26 @@ class TransactionService {
 
   async createTransaction(transactionData) {
     try {
-      const transactions = await AsyncStorage.getItem('transactions');
-      const transactionList = transactions ? JSON.parse(transactions) : [];
-
-      // Get category name for display
-      const categories = await AsyncStorage.getItem('categories');
-      const categoryList = categories ? JSON.parse(categories) : [];
-      const category = categoryList.find(c => c.id === transactionData.categoryId);
-
-      // Destructure to exclude any provided id, ensuring we always generate a new unique one
-      const { id, ...restTransactionData } = transactionData;
-
-      const newTransaction = {
-        id: generateUUID(),
-        uniqueId: generateUUID(), // Add uniqueId for safe deletion
-        ...restTransactionData,
-        categoryName: category ? category.name : 'Categoria não definida',
-        createdAt: new Date().toISOString(),
-      };
-      transactionList.push(newTransaction);
-      await AsyncStorage.setItem('transactions', JSON.stringify(transactionList));
-      return newTransaction;
+      const response = await api.post('/transactions', transactionData);
+      return response;
     } catch (error) {
       throw error;
     }
   }
 
-  async updateTransaction(uniqueId, transactionData) {
+  async updateTransaction(id, transactionData) {
     try {
-      const transactions = await AsyncStorage.getItem('transactions');
-      const transactionList = transactions ? JSON.parse(transactions) : [];
-      const index = transactionList.findIndex(t => t.uniqueId === uniqueId);
-      if (index !== -1) {
-        // Get updated category name
-        const categories = await AsyncStorage.getItem('categories');
-        const categoryList = categories ? JSON.parse(categories) : [];
-        const category = categoryList.find(c => c.id === transactionData.categoryId);
-
-        const updatedTransaction = {
-          ...transactionList[index],
-          ...transactionData,
-          categoryName: category ? category.name : 'Categoria não definida',
-        };
-
-        transactionList[index] = updatedTransaction;
-        await AsyncStorage.setItem('transactions', JSON.stringify(transactionList));
-        return updatedTransaction;
-      }
-      throw new Error('Transaction not found');
+      const response = await api.put(`/transactions/${id}`, transactionData);
+      return response;
     } catch (error) {
       throw error;
     }
   }
 
-  async deleteTransaction(uniqueId) {
+  async deleteTransaction(id) {
     try {
-      const transactions = await AsyncStorage.getItem('transactions');
-      const transactionList = transactions ? JSON.parse(transactions) : [];
-      const filteredTransactions = transactionList.filter(t => t.uniqueId !== uniqueId);
-      await AsyncStorage.setItem('transactions', JSON.stringify(filteredTransactions));
-      return { message: 'Transaction deleted' };
+      const response = await api.delete(`/transactions/${id}`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -174,10 +67,8 @@ class TransactionService {
 
   async getTotalIncome(userId) {
     try {
-      const transactions = await this.getTransactionsByUser(userId);
-      return transactions
-        .filter(t => t.type === 'income')
-        .reduce((total, t) => total + parseFloat(t.amount), 0);
+      const response = await api.get(`/transactions/user/${userId}/total-income`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -185,10 +76,8 @@ class TransactionService {
 
   async getTotalExpense(userId) {
     try {
-      const transactions = await this.getTransactionsByUser(userId);
-      return transactions
-        .filter(t => t.type === 'expense')
-        .reduce((total, t) => total + parseFloat(t.amount), 0);
+      const response = await api.get(`/transactions/user/${userId}/total-expense`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -196,33 +85,16 @@ class TransactionService {
 
   async getFilteredTransactions(userId, searchQuery, categoryId, type, startDate, endDate) {
     try {
-      let transactions = await this.getTransactionsByUser(userId);
-
-      if (searchQuery && searchQuery.trim() !== '') {
-        transactions = transactions.filter(t =>
-          t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (t.notes && t.notes.toLowerCase().includes(searchQuery.toLowerCase()))
-        );
-      }
-
-      if (categoryId) {
-        transactions = transactions.filter(t => t.categoryId === categoryId);
-      }
-
-      if (type && type.trim() !== '') {
-        transactions = transactions.filter(t => t.type === type);
-      }
-
-      if (startDate && endDate) {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        transactions = transactions.filter(t => {
-          const transactionDate = new Date(t.date);
-          return transactionDate >= start && transactionDate <= end;
-        });
-      }
-
-      return transactions;
+      let url = `/transactions/user/${userId}/filtered?`;
+      const params = [];
+      if (searchQuery) params.push(`searchQuery=${encodeURIComponent(searchQuery)}`);
+      if (categoryId) params.push(`categoryId=${categoryId}`);
+      if (type) params.push(`type=${type}`);
+      if (startDate) params.push(`startDate=${startDate}`);
+      if (endDate) params.push(`endDate=${endDate}`);
+      url += params.join('&');
+      const response = await api.get(url);
+      return response;
     } catch (error) {
       throw error;
     }

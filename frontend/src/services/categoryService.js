@@ -1,29 +1,10 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Base URL for the backend API
-const API_BASE_URL = 'http://academico3.rj.senac.br/projectmanagement/api';
+import api from './api';
 
 class CategoryService {
   async getCategoriesByUser(userId) {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) throw new Error('User not authenticated');
-
-      const userData = JSON.parse(user);
-      const token = userData.token;
-
-      const response = await fetch(`${API_BASE_URL}/categories/user/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-      const categories = await response.json();
-      return categories;
+      const response = await api.get(`/categories/user/${userId}`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -31,25 +12,8 @@ class CategoryService {
 
   async createCategory(categoryData) {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) throw new Error('User not authenticated');
-
-      const userData = JSON.parse(user);
-      const token = userData.token;
-
-      const response = await fetch(`${API_BASE_URL}/categories`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(categoryData),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create category');
-      }
-      const newCategory = await response.json();
-      return newCategory;
+      const response = await api.post('/categories', categoryData);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -57,25 +21,8 @@ class CategoryService {
 
   async updateCategory(id, categoryData) {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) throw new Error('User not authenticated');
-
-      const userData = JSON.parse(user);
-      const token = userData.token;
-
-      const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(categoryData),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update category');
-      }
-      const updatedCategory = await response.json();
-      return updatedCategory;
+      const response = await api.put(`/categories/${id}`, categoryData);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -83,23 +30,8 @@ class CategoryService {
 
   async deleteCategory(id) {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) throw new Error('User not authenticated');
-
-      const userData = JSON.parse(user);
-      const token = userData.token;
-
-      const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete category');
-      }
-      return { message: 'Category deleted' };
+      const response = await api.delete(`/categories/${id}`);
+      return response;
     } catch (error) {
       throw error;
     }
@@ -107,24 +39,8 @@ class CategoryService {
 
   async getCategoryById(id) {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) throw new Error('User not authenticated');
-
-      const userData = JSON.parse(user);
-      const token = userData.token;
-
-      const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch category');
-      }
-      const category = await response.json();
-      return category;
+      const response = await api.get(`/categories/${id}`);
+      return response;
     } catch (error) {
       throw error;
     }

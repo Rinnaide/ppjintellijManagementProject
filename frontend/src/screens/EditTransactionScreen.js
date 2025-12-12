@@ -14,12 +14,12 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { useTransaction } from '../contexts/TransactionContext';
+import { useAuth } from '../contexts/AuthContext';
 import { COLORS, SPACING } from '../utils/constants';
 import { isValidAmount, formatCurrencyInput, parseBRLAmount, formatNumberToBRL, formatDate, sanitizeNumericInput } from '../utils/helpers';
 
@@ -60,14 +60,12 @@ const EditTransactionScreen = () => {
 
   const loadData = async () => {
     try {
-      const user = await AsyncStorage.getItem('user');
       if (!user) {
         Alert.alert('Erro', 'Usuário não encontrado');
         return;
       }
 
-      const userData = JSON.parse(user);
-      const userCategories = await categoryService.getCategoriesByUser(userData.id);
+      const userCategories = await categoryService.getCategoriesByUser(user.id);
       setCategories(userCategories);
 
       // Pre-fill form with transaction data
@@ -139,17 +137,15 @@ const EditTransactionScreen = () => {
 
     setLoading(true);
     try {
-      const user = await AsyncStorage.getItem('user');
       if (!user) {
         Alert.alert('Erro', 'Usuário não encontrado');
         return;
       }
 
-      const userData = JSON.parse(user);
       const updateData = {
         ...formData,
         amount: parseBRLAmount(formData.amount),
-        userId: userData.id,
+        userId: user.id,
       };
 
       const updatedTransaction = await transactionService.updateTransaction(transaction.id, updateData);

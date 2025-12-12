@@ -12,7 +12,6 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import TransactionItem from '../components/TransactionItem';
 import CustomButton from '../components/CustomButton';
 import transactionService from '../services/transactionService';
