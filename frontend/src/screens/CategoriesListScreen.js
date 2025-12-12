@@ -132,7 +132,7 @@ const CategoriesListScreen = () => {
       <FlatList
         data={categories}
         renderItem={renderCategory}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.categoryId.toString()}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={renderEmpty}
         refreshControl={
