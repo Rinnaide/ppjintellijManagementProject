@@ -17,7 +17,7 @@ import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import transactionService from '../services/transactionService';
 import categoryService from '../services/categoryService';
 import { formatCurrency } from '../utils/helpers';
-
+import api from '../services/api';
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
@@ -41,19 +41,21 @@ const ProfileScreen = () => {
 
   const loadUserData = async () => {
     try {
-      const userData = await AsyncStorage.getItem('user');
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+      const id = await AsyncStorage.getItem('id');
+      if (id) {
+      const user = await api.get(`/users/${id}`)
+      setUser(user)
 
-        // Load statistics
-        const [transactions, income, expense, categories] = await Promise.all([
-          transactionService.getTransactionsByUser(parsedUser.id),
-          transactionService.getTotalIncome(parsedUser.id),
-          transactionService.getTotalExpense(parsedUser.id),
-          categoryService.getCategoriesByUser(parsedUser.id),
-        ]);
+        //   categoryService.getCategoriesByUser(parsedUser.id),
+        // ]);
 
+        const transactions = await api.get(`/transactions/user/${id}`)
+        const income = await api.get(`/transactions/user/${id}/total-income`)
+        const expense = await api.get(`/transactions/user/${id}/total-expense`)
+        const categories = await api.get(`/categories/user/${id}`)
+        console.log(`expense: ${expense}`)
+        if (expense.trim() == '') expense = 0
+        console.log(expense)
         setStats({
           totalTransactions: transactions.length,
           totalIncome: income,

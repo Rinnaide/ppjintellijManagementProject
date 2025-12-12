@@ -26,7 +26,7 @@ const CategoriesListScreen = () => {
     try {
       const id = await AsyncStorage.getItem('id');
       if (id) {
-        res = await api.get(`/categories/user/${id}`)
+        const res = await api.get(`/categories/user/${id}`)
         console.log(res)
         setCategories(res);
       }
@@ -58,6 +58,8 @@ const CategoriesListScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log("destruiu")
+              await api.delete(`/categories/${categoryId}`)
               await loadCategories();
               Alert.alert('Sucesso', 'Categoria excluída com sucesso!');
             } catch (error) {
@@ -73,7 +75,7 @@ const CategoriesListScreen = () => {
     <View style={styles.categoryItem}>
       <View style={styles.categoryInfo}>
         <View style={[styles.categoryColor, { backgroundColor: item.color || COLORS.primary }]} />
-        <Text style={styles.categoryName}>{item.name}</Text>
+        <Text style={styles.categoryName}>{item.categoryName}</Text>
         <Text style={styles.categoryType}>
           {item.type === 'income' ? 'Receita' : 'Despesa'}
         </Text>

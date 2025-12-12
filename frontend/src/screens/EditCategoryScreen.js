@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-
+import api from '../services/api'
 const EditCategoryScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -60,7 +60,7 @@ const EditCategoryScreen = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
+    if (!formData.name) {
       newErrors.name = 'Nome da categoria é obrigatório';
     }
 
@@ -73,28 +73,24 @@ const EditCategoryScreen = () => {
 
     setLoading(true);
     try {
-      const categoriesData = await AsyncStorage.getItem('categories');
-      const categories = categoriesData ? JSON.parse(categoriesData) : [];
-
+      const id = await AsyncStorage.getItem('id')
+      const categories = await api.get(`/categories/user/${id}`)
       const categoryIndex = categories.findIndex(cat => cat.id === category.id);
-      if (categoryIndex !== -1) {
-        categories[categoryIndex] = {
-          ...categories[categoryIndex],
-          name: formData.name.trim(),
-          type: formData.type,
-          color: formData.color,
-        };
+      const body = {
+        'userId' : id,
+        'categoryName' : formData.name,
+        'categoryTransactionType' : formData.type.toUpperCase(),
+        "categoryIconName" : "cachorro",
+        "categoryColorHex" : formData.color
+      }
 
-        await AsyncStorage.setItem('categories', JSON.stringify(categories));
-
+        const res = await api.put(`/catergories/${categoryIndex}`, body)
+        console.log(res)
         Alert.alert(
           'Sucesso',
           'Categoria atualizada com sucesso!',
           [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
-      } else {
-        Alert.alert('Erro', 'Categoria não encontrada');
-      }
     } catch (error) {
       Alert.alert('Erro', 'Erro ao atualizar categoria');
     } finally {
