@@ -79,6 +79,7 @@ const LoginScreen = () => {
       Alert.alert('Erro', 'Email ou senha incorretos');
     } finally {
       setLoading(false);
+      navigation.navigate("Main")
     }
   };
 
