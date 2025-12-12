@@ -44,9 +44,9 @@ const AddTransactionScreen = () => {
 
   const loadCategories = useCallback(async (type = null) => {
     try {
-      if (user && user.usuario_id) {
-        const categoriesData = await categoryService.getCategoriesByUser(user.usuario_id);
-        const filteredCategories = type ? categoriesData.filter(cat => cat.type === type) : categoriesData;
+      if (user && user.id) {
+        const categoriesData = await categoryService.getCategoriesByUser(user.id);
+        const filteredCategories = type ? categoriesData.filter(cat => cat.categoryTransactionType.toLowerCase() === type) : categoriesData;
         setCategories(filteredCategories);
       }
     } catch (error) {
@@ -250,22 +250,22 @@ const AddTransactionScreen = () => {
       >
         {categories.map((category) => (
           <TouchableOpacity
-            key={category.id}
+            key={category.categoryId}
             style={[
               styles.categoryButton,
-              formData.categoryId === category.id && styles.categoryButtonActive,
+              formData.categoryId === category.categoryId && styles.categoryButtonActive,
             ]}
-            onPress={() => handleInputChange('categoryId', category.id)}
+            onPress={() => handleInputChange('categoryId', category.categoryId)}
           >
             <View style={styles.categoryContent}>
-              <View style={[styles.categoryColor, { backgroundColor: category.color || COLORS.primary }]} />
+              <View style={[styles.categoryColor, { backgroundColor: category.categoryColorHex || COLORS.primary }]} />
               <Text
                 style={[
                   styles.categoryButtonText,
-                  formData.categoryId === category.id && styles.categoryButtonTextActive,
+                  formData.categoryId === category.categoryId && styles.categoryButtonTextActive,
                 ]}
               >
-                {category.name}
+                {category.categoryName}
               </Text>
             </View>
           </TouchableOpacity>
