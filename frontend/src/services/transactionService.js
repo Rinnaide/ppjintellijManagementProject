@@ -193,6 +193,40 @@ class TransactionService {
       throw error;
     }
   }
+
+  async getFilteredTransactions(userId, searchQuery, categoryId, type, startDate, endDate) {
+    try {
+      let transactions = await this.getTransactionsByUser(userId);
+
+      if (searchQuery && searchQuery.trim() !== '') {
+        transactions = transactions.filter(t =>
+          t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (t.notes && t.notes.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+      }
+
+      if (categoryId) {
+        transactions = transactions.filter(t => t.categoryId === categoryId);
+      }
+
+      if (type && type.trim() !== '') {
+        transactions = transactions.filter(t => t.type === type);
+      }
+
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        transactions = transactions.filter(t => {
+          const transactionDate = new Date(t.date);
+          return transactionDate >= start && transactionDate <= end;
+        });
+      }
+
+      return transactions;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new TransactionService();

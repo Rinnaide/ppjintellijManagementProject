@@ -2,6 +2,8 @@ package com.senac.projectmanagement.repository;
 
 import com.senac.projectmanagement.entity.Transaction;
 import com.senac.projectmanagement.entity.TransactionType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +26,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT SUM(t.transactionAmount) FROM Transaction t WHERE t.user.userId = :userId AND t.transactionType = :type AND t.transactionIsDeleted = false")
     Double sumAmountByUserAndType(@Param("userId") Long userId, @Param("type") TransactionType type);
+
+    @Query("SELECT t FROM Transaction t WHERE t.user.userId = :userId AND t.transactionIsDeleted = false ORDER BY t.transactionDate DESC, t.transactionCreatedAt DESC")
+    Page<Transaction> findTransactionsByUserIdPaged(@Param("userId") Long userId, Pageable pageable);
 }
