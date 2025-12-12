@@ -15,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import CustomButton from '../components/CustomButton';
-
+import api from '../services/api'
 const CategoriesListScreen = () => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
@@ -24,13 +24,11 @@ const CategoriesListScreen = () => {
 
   const loadCategories = async () => {
     try {
-      const user = await AsyncStorage.getItem('user');
-      if (user) {
-        const userData = JSON.parse(user);
-        const categoriesData = await AsyncStorage.getItem('categories');
-        const allCategories = categoriesData ? JSON.parse(categoriesData) : [];
-        const userCategories = allCategories.filter(cat => cat.userId === userData.id);
-        setCategories(userCategories);
+      const id = await AsyncStorage.getItem('id');
+      if (id) {
+        res = await api.get(`/categories/user/${id}`)
+        console.log(res)
+        // setCategories();
       }
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -60,10 +58,10 @@ const CategoriesListScreen = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              const categoriesData = await AsyncStorage.getItem('categories');
-              const allCategories = categoriesData ? JSON.parse(categoriesData) : [];
-              const filteredCategories = allCategories.filter(cat => cat.id !== categoryId);
-              await AsyncStorage.setItem('categories', JSON.stringify(filteredCategories));
+              // const categoriesData = await AsyncStorage.getItem('categories');
+              // const allCategories = categoriesData ? JSON.parse(categoriesData) : [];
+              // const filteredCategories = allCategories.filter(cat => cat.id !== categoryId);
+              // await AsyncStorage.setItem('categories', JSON.stringify(filteredCategories));
               await loadCategories();
               Alert.alert('Sucesso', 'Categoria excluída com sucesso!');
             } catch (error) {

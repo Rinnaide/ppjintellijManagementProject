@@ -3,6 +3,7 @@ package com.senac.projectmanagement.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.senac.projectmanagement.dto.CategoryResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,13 +42,18 @@ public class CategoryController {
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<Category>> getCategoriesByUser(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<CategoryResponseDTO>> getCategoriesByUser(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // Check if the userId matches the authenticated user or if the user is admin
         if (!userId.equals(userDetails.getIdUsuario()) && !userDetails.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMINISTRATOR"))) {
             return ResponseEntity.status(403).build(); // Forbidden
         }
         List<Category> categories = categoryService.getCategoriesByUser(userId);
-        return ResponseEntity.ok(categories);
+
+        List<CategoryResponseDTO> response = categories.stream()
+                .map(CategoryResponseDTO::new)
+                .toList();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

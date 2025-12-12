@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -15,13 +16,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-
+import api from '../services/api'
 const AddCategoryScreen = () => {
   const navigation = useNavigation();
   const [formData, setFormData] = useState({
     name: '',
     type: 'expense', // 'income' or 'expense'
     color: COLORS.primary,
+    description: ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -51,6 +53,9 @@ const AddCategoryScreen = () => {
       newErrors.name = 'Nome da categoria é obrigatório';
     }
 
+    if (!formData.description.trim()){
+      newErrors.description = 'Descrição é obrigatória'
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -59,28 +64,32 @@ const AddCategoryScreen = () => {
     if (!validateForm()) return;
 
     setLoading(true);
-    try {
-      const user = await AsyncStorage.getItem('user');
-      if (!user) {
-        Alert.alert('Erro', 'Usuário não encontrado');
-        return;
-      }
-
-      const userData = JSON.parse(user);
-      const categoriesData = await AsyncStorage.getItem('categories');
-      const categories = categoriesData ? JSON.parse(categoriesData) : [];
+    // try {
+    //   const user = await AsyncStorage.getItem('user');
+    //   if (!user) {
+    //     Alert.alert('Erro', 'Usuário não encontrado');
+    //     return;
+    //   }
+      try{
+      const id = await AsyncStorage.getItem('id')
+      // const categoriesData = await AsyncStorage.getItem('categories');
+      // const categories = categoriesData ? JSON.parse(categoriesData) : [];
 
       const newCategory = {
-        id: Date.now().toString(),
-        name: formData.name.trim(),
-        type: formData.type,
-        color: formData.color,
-        userId: userData.id,
-        createdAt: new Date().toISOString(),
+        'userId': id,
+        'categoryName': formData.name.trim(),
+        'categoryTransactionType': formData.type.toUpperCase(),
+        'categoryDescription': formData.description,
+        'categoryColorHex': formData.color,
+        'categoryIconName' : 'cachorro'
       };
-
-      categories.push(newCategory);
-      await AsyncStorage.setItem('categories', JSON.stringify(categories));
+      console.log(newCategory)
+      res = await api.post('/categories', newCategory)
+      
+      // categories.push(newCategory);
+      // await AsyncStorage.setItem('categories', JSON.stringify(categories));
+      console.log(res)
+      if (Platform.OS == 'web') window.alert("Criado com sucesso!!")
 
       Alert.alert(
         'Sucesso',
@@ -91,6 +100,7 @@ const AddCategoryScreen = () => {
       Alert.alert('Erro', 'Erro ao criar categoria');
     } finally {
       setLoading(false);
+      navigation.goBack();
     }
   };
 
@@ -127,6 +137,14 @@ const AddCategoryScreen = () => {
             error={errors.name}
           />
 
+
+          <CustomInput
+            label="Descrição da Categoria"
+            value={formData.description}
+            onChangeText={(text) => updateFormData('description', text)}
+            placeholder="Digite uma descrição para a categoria"
+            error={errors.description}
+          />
           {/* Type Selection */}
           <View style={styles.typeContainer}>
             <Text style={styles.label}>Tipo</Text>
