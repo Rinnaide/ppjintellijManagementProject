@@ -36,6 +36,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUserEmail(),
                 user.getUserPasswordHash(),
                 user.getUserIsActive(),
+                user.getUserEmailVerified(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
     }
