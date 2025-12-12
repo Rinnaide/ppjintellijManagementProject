@@ -18,6 +18,7 @@ import CustomButton from '../components/CustomButton';
 import api from '../services/api'
 const CategoriesListScreen = () => {
   const navigation = useNavigation();
+  const { user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
