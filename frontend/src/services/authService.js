@@ -3,7 +3,7 @@ import api, { setApiToken } from './api';
 const authService = {
   login: async (email, password) => {
     try {
-      const response = await api.post('/auth/login', {"usuarioEmail": email ,"usuario_senha":  password});
+      const response = await api.post('/auth/login', {"email": email ,"password":  password});
       const { usuario_id, usuario_nome, usuario_token } = response;
       setApiToken(usuario_token);
       return { user: { id: usuario_id, name: usuario_nome }, token: usuario_token };

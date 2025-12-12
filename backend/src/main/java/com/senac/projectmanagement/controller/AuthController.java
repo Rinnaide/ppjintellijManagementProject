@@ -22,8 +22,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDTO> login(@RequestBody Map<String, String> loginRequest) {
-        String email = loginRequest.get("usuarioEmail");
-        String password = loginRequest.get("usuario_senha");
+        String email = loginRequest.get("email");
+        String password = loginRequest.get("password");
 
         UserLoginRequestDTO requestDTO = new UserLoginRequestDTO();
         requestDTO.setUsuarioEmail(email);
